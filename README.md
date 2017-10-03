@@ -84,5 +84,5 @@ In order to restore an APFS 10.13 DMG to a machine, the host machine running Res
 ## Contributing
 
 Patches to this library are very much welcome.
-Please see the [CONTRIBUTING](https://github.com/google/macops-molxpcconecction/blob/master/CONTRIBUTING.md) file.
+Please see the [CONTRIBUTING](https://github.com/google/restor/blob/master/CONTRIBUTING.md) file.
 
