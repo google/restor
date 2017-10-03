@@ -19,7 +19,7 @@ use GitHub pull requests for this purpose.
 
 All code submissions should try to match the surrounding code.  Wherever
 possible, code should adhere to the
-[Google Objective-C Style Guide](http://google-styleguide.googlecode.com/svn/trunk/objcguide.xml).
+[Google Objective-C Style Guide](https://google.github.io/styleguide/objcguide.html).
 
 ### The small print
 Contributions made by corporations are covered by a different agreement than
