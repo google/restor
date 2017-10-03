@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12121"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+        <capability name="system font weights other than Regular or Bold" minToolsVersion="7.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="CollectionViewItemImaging">
+            <connections>
+                <outlet property="view" destination="tsB-6R-n7g" id="Co4-ZL-yBb"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView focusRingType="exterior" id="tsB-6R-n7g" userLabel="View">
+            <rect key="frame" x="0.0" y="0.0" width="150" height="120"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <subviews>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5K2-v7-nt3">
+                    <rect key="frame" x="35" y="71" width="98" height="29"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="disk2s2" id="gE9-gs-iOS">
+                        <font key="font" metaFont="systemLight" size="24"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.representedObject.bsdName" id="gUN-Y8-TXA"/>
+                    </connections>
+                </textField>
+                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8vW-Ne-A2Q">
+                    <rect key="frame" x="19" y="75" width="20" height="20"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="Thunderbolt" id="vqz-6M-n02"/>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.representedObject.protocol" id="Q8U-yy-ius">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">ImageNamedValueTransformer</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </imageView>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bkS-l3-tUa">
+                    <rect key="frame" x="17" y="36" width="114" height="32"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Label" id="6ti-64-u9r">
+                        <font key="font" metaFont="systemLight" size="11"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.imagingStatusString" id="Q3b-7r-hSV"/>
+                    </connections>
+                </textField>
+                <progressIndicator wantsLayer="YES" fixedFrame="YES" maxValue="100" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="deN-rJ-9FM">
+                    <rect key="frame" x="19" y="19" width="110" height="20"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.progressPercent" id="mhq-kg-AY9"/>
+                    </connections>
+                </progressIndicator>
+                <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0l6-Wl-ZjL">
+                    <rect key="frame" x="113" y="52" width="16" height="16"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSCaution" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="6RS-Ih-clv">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="showError:" target="-2" id="Etj-sJ-bQc"/>
+                        <binding destination="-2" name="hidden" keyPath="self.imagingSession.lastError" id="GGo-qc-V1s">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">NSIsNil</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </button>
+            </subviews>
+            <point key="canvasLocation" x="-250" y="-49"/>
+        </customView>
+    </objects>
+    <resources>
+        <image name="NSCaution" width="32" height="32"/>
+        <image name="Thunderbolt" width="48" height="48"/>
+    </resources>
+</document>

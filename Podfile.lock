@@ -1,0 +1,22 @@
+PODS:
+  - MOLAuthenticatingURLSession (2.3):
+    - MOLCertificate (~> 1.7)
+  - MOLCertificate (1.7)
+  - MOLCodesignChecker (1.7):
+    - MOLCertificate (~> 1.7)
+  - MOLXPCConnection (1.0):
+    - MOLCodesignChecker (~> 1.7)
+
+DEPENDENCIES:
+  - MOLAuthenticatingURLSession
+  - MOLXPCConnection
+
+SPEC CHECKSUMS:
+  MOLAuthenticatingURLSession: 7d03f086e9f2b88a44b3d3a4cea7168d8a35035a
+  MOLCertificate: 1cdb264405631b4bbdcf4cde7627469290cf1187
+  MOLCodesignChecker: c2aec7e7b7775b37da7619341ec926a2816aabdb
+  MOLXPCConnection: e5d75140ecfb0ac90c59c64bdf187359948eceb0
+
+PODFILE CHECKSUM: 5cf4b07f7d175476d2cc6f41208074b1933af454
+
+COCOAPODS: 1.2.1

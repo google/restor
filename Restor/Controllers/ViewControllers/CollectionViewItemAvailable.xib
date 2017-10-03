@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+        <capability name="system font weights other than Regular or Bold" minToolsVersion="7.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="CollectionViewItemAvailable">
+            <connections>
+                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView focusRingType="exterior" id="Hz6-mo-xeY" userLabel="View">
+            <rect key="frame" x="0.0" y="0.0" width="150" height="120"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <subviews>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ytD-1o-lKu">
+                    <rect key="frame" x="35" y="71" width="98" height="29"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="disk2s2" id="olE-s3-5kr">
+                        <font key="font" metaFont="systemLight" size="24"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.representedObject.bsdName" id="aKa-Fh-tvQ"/>
+                    </connections>
+                </textField>
+                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wq5-fW-XZY">
+                    <rect key="frame" x="19" y="75" width="20" height="20"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="Thunderbolt" id="7c6-Xj-HUY"/>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.representedObject.protocol" id="7Lb-C2-HW1">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">ImageNamedValueTransformer</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </imageView>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wCa-bS-dUb">
+                    <rect key="frame" x="18" y="20" width="114" height="29"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="189 GB" id="XCH-vM-RAg">
+                        <byteCountFormatter key="formatter" id="UWx-ix-IZ6"/>
+                        <font key="font" metaFont="systemUltraLight" size="24"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <binding destination="-2" name="value" keyPath="self.representedObject.diskSize" id="JjT-4w-ejY"/>
+                    </connections>
+                </textField>
+            </subviews>
+            <point key="canvasLocation" x="-5" y="87"/>
+        </customView>
+        <userDefaultsController representsSharedInstance="YES" id="A8H-rb-5nz"/>
+    </objects>
+    <resources>
+        <image name="Thunderbolt" width="48" height="48"/>
+    </resources>
+</document>
