@@ -1,18 +1,16 @@
 # Restor
 
-Restor is a user-friendly application to (mass) image macOS
-computers from a single source.
+Restor is a user-friendly application to (mass) image macOS computers from a single source.
 
 # Example Configuration
 
 Restor has two configurable features: `ConfigURL` and `CustomImage`.
 
-###ConfigURL
+### ConfigURL
 
 __Required__
 
-Set the `ConfigURL` preference to point at a plist
-containing the images to be used.
+Set the `ConfigURL` preference to point at a plist containing the images to be used.
 
 `sudo defaults write /Library/Preferences/com.google.corp.restor.plist ConfigURL "http://server/images.plist"`
 
@@ -38,7 +36,7 @@ The following format for the plist is required:
 </plist>
 ```
 
-###CustomImage
+### CustomImage
 
 __Optional__
 
