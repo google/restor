@@ -1,13 +1,3 @@
-ifeq (,$(wildcard Pods))
-  $(warning Pods dir does not exist, running 'pod install')
-  @pod install
- endif
-
-XCPRETTY_AVAIL:=$(shell command -v xcpretty 2>/dev/null)
-ifdef XCPRETTY_AVAIL
-	XCPRETTY:=| ${XCPRETTY_AVAIL} -sc
-endif
-
 ifeq (,${BUILD_D})
   DERIVED_DATA=$(shell xcodebuild -workspace Restor.xcworkspace -scheme Restor -showBuildSettings | grep TARGET_BUILD_DIR | head -n1 | awk '{print $$3}')
 else
@@ -24,27 +14,32 @@ list:
 		sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | \
 		xargs
 
-debug:
+.PHONY: .prebuild
+.prebuild:
+ifeq (,$(wildcard Pods))
+	@echo "Pods dir does not exist, running 'pod install'"
+	@pod install
+endif
+
+debug: .prebuild
 	@xcodebuild \
 		-derivedDataPath ${DERIVED_DATA} \
 		-parallelizeTargets -jobs ${NCPUS} \
 		-workspace Restor.xcworkspace \
 		-scheme Restor \
 		-configuration Debug \
-		build \
-		${XCPRETTY}
+		build
 
-release:
+release: .prebuild
 	@xcodebuild \
 		-derivedDataPath ${DERIVED_DATA} \
 		-parallelizeTargets -jobs ${NCPUS} \
 		-workspace Restor.xcworkspace \
 		-scheme Restor \
 		-configuration Release \
-		build \
-		${XCPRETTY}
+		build
 
-google_release:
+google_release: .prebuild
 	@xcodebuild \
 		TEAM_ID=EQHXZ8M8AV \
 		-derivedDataPath ${DERIVED_DATA} \
@@ -52,10 +47,9 @@ google_release:
 		-workspace Restor.xcworkspace \
 		-scheme Restor \
 		-configuration Release \
-		build \
-		${XCPRETTY}
+		build
 
 clean:
-	@xcodebuild -workspace Restor.xcworkspace -scheme Restor clean ${XCPRETTY}
-	@rm -rf build
+	@xcodebuild -workspace Restor.xcworkspace -scheme Restor clean
+	@rm -rf ${DERIVED_DATA}
 
