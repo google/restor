@@ -52,4 +52,3 @@ google_release: .prebuild
 clean:
 	@xcodebuild -workspace Restor.xcworkspace -scheme Restor clean
 	@rm -rf ${DERIVED_DATA}
-

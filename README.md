@@ -1,6 +1,8 @@
 # Restor
 
-Restor is a user-friendly application to (mass) image macOS computers from a single source. It is an application intended to be run interactively on a machine.
+Restor is a user-friendly application to (mass) image macOS computers from a
+single source. It is an application intended to be run interactively on a
+machine.
 
 <p align="center">
 <a href="#restor--">
@@ -8,7 +10,8 @@ Restor is a user-friendly application to (mass) image macOS computers from a sin
 </a>
 </p>
 
-You can attach the machine-to-be-imaged via Thunderbolt or USB to the machine running Restor.
+You can attach the machine-to-be-imaged via Thunderbolt or USB to the machine
+running Restor.
 
 <p align="center">
 <a href="#restor_disk_choice--">
@@ -16,7 +19,9 @@ You can attach the machine-to-be-imaged via Thunderbolt or USB to the machine ru
 </a>
 </p>
 
-Restor will cache an image once it has been downloaded for future use, and will validate the image via SHA256. Only if the signature has changed, will the image be downloaded again.
+Restor will cache an image once it has been downloaded for future use, and will
+validate the image via SHA256. Only if the signature has changed, will the image
+be downloaded again.
 
 <p align="center">
 <a href="#restor_progress--">
@@ -38,7 +43,8 @@ Restor has two configurable features: `ConfigURL` and `CustomImage`.
 
 __Required__
 
-Set the `ConfigURL` preference to point at a plist containing the images to be used.
+Set the `ConfigURL` preference to point at a plist containing the images to be
+used.
 
 `sudo defaults write /Library/Preferences/com.google.corp.restor.plist ConfigURL "http://server/images.plist"`
 
@@ -73,7 +79,10 @@ Set the `CustomImage` preference to toggle the use of a local custom image.
 `sudo defaults write /Library/Preferences/com.google.corp.restor.plist CustomImage -bool true`
 
 ## 10.13 and APFS Note
-In order to restore an APFS 10.13 DMG to a machine, the host machine running Restor must also be upgraded to High Sierra 10.13. Otherwise, you will receive an error when attempting to image the machine.
+
+In order to restore an APFS 10.13 DMG to a machine, the host machine running
+Restor must also be upgraded to High Sierra 10.13. Otherwise, you will receive
+an error when attempting to image the machine.
 
 <p align="center">
 <a href="#restor_apfs_error--">
@@ -83,6 +92,6 @@ In order to restore an APFS 10.13 DMG to a machine, the host machine running Res
 
 ## Contributing
 
-Patches to this library are very much welcome.
-Please see the [CONTRIBUTING](https://github.com/google/restor/blob/master/CONTRIBUTING.md) file.
-
+Patches to this library are very much welcome. Please see the
+[CONTRIBUTING](https://github.com/google/restor/blob/master/CONTRIBUTING.md)
+file.

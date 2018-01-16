@@ -88,7 +88,7 @@
     ImagingSession *is = self.imagingSessions[disk.bsdName];
     self.imagingSessions[disk.bsdName] = nil;
 
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_sync(dispatch_get_main_queue(), ^{
       STRONGIFY(self);
       [[self mutableArrayValueForKey:@"connectedDisks"] removeObject:disk];
       [self.collectionView reloadData];

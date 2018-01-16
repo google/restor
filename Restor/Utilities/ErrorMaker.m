@@ -16,7 +16,6 @@
 
 @implementation ErrorMaker
 
-// TODO(rah): Extend this to handle all error creation more gracefully
 + (NSError *)errorWithCode:(NSInteger)code string:(NSString *)string {
   NSDictionary *userInfo = @{ NSLocalizedDescriptionKey: string };
   return [NSError errorWithDomain:@"com.google.corp.restor" code:code userInfo:userInfo];

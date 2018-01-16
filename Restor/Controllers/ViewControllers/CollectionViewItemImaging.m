@@ -28,7 +28,6 @@ static const float kImagingRatioOfTotal = 0.85;
 }
 
 - (IBAction)showError:(id)sender {
-  // TODO(rah): Make this nicer
   [self presentError:self.imagingSession.lastError
           modalForWindow:self.view.window
                 delegate:nil

@@ -27,6 +27,10 @@
 @property(readwrite, nonatomic) BOOL isCancelled;
 @property NSURLSessionDataTask *task;
 @property float percentComplete;
+@property NSProgress *progress;
+@property NSTimeInterval startTime;
+@property uint64_t startBytes;
+@property NSTimer *progressTimer;
 @end
 
 @implementation DownloadImageViewController
@@ -36,6 +40,30 @@
     [self dismissController:self];
   }
 
+  // Reset download progress info in case this view is reappearing.
+  self.progress = nil;
+  self.startTime = [[NSDate date] timeIntervalSinceReferenceDate];
+  self.startBytes = 0;
+
+  // Start a task to download the requested image.
+  self.authSession = [self createDownloadSession];
+  self.task = [self.authSession.session dataTaskWithURL:self.requestedImage.URL];
+  [self.task resume];
+  self.isPausable = YES;
+
+  // Compute download throughput and update the progress description every 1 second.
+  self.progressTimer = [NSTimer scheduledTimerWithTimeInterval:1.0
+                                                       repeats:YES
+                                                         block:^(NSTimer *timer) {
+    [self updateProgressDescription];
+  }];
+}
+
+- (void)viewDidDisappear {
+  [self.progressTimer invalidate];
+}
+
+- (MOLAuthenticatingURLSession *)createDownloadSession {
   NSString *downloadPath = [NSString stringWithFormat:@"%@.download",
                                self.requestedImage.localURL.path];
   NSFileHandle *download = [self imageDownloadFileHandleForPath:downloadPath];
@@ -43,33 +71,35 @@
   dispatch_queue_t fileQueue = dispatch_queue_create("com.google.corp.restor.file",
                                                      DISPATCH_QUEUE_SERIAL);
 
-  __block int64_t sentPercent = 0;
+  __block int64_t receivedPercent = 0;
   __block CC_SHA256_CTX context;
-  CC_SHA256_Init(&context);
+  if (self.requestedImage.sha256) CC_SHA256_Init(&context);
 
-  if (!self.authSession) self.authSession = [[MOLAuthenticatingURLSession alloc] init];
+  MOLAuthenticatingURLSession *authSession = [[MOLAuthenticatingURLSession alloc] init];
 
   WEAKIFY(self);
-  self.authSession.dataTaskDidReceiveDataBlock = ^(NSURLSession *s,
-                                                   NSURLSessionDataTask *t,
-                                                   NSData *d) {
+  authSession.dataTaskDidReceiveDataBlock = ^(NSURLSession *s, NSURLSessionDataTask *t, NSData *d) {
     STRONGIFY(self);
     dispatch_async(fileQueue, ^{
-      CC_SHA256_Update(&context, d.bytes, (CC_LONG)d.length);
+      if (self.requestedImage.sha256) CC_SHA256_Update(&context, d.bytes, (CC_LONG)d.length);
       [download writeData:d];
     });
-    float progress = ((float)t.countOfBytesReceived / (float)t.countOfBytesExpectedToReceive) * 100;
-    if (sentPercent < (int64_t)progress) {
-      sentPercent = (int64_t)progress;
+
+    if (!self.progress) {
+      self.progress = [NSProgress progressWithTotalUnitCount:t.countOfBytesExpectedToReceive];
+      self.progress.localizedDescription = @"";
+    }
+    self.progress.completedUnitCount = t.countOfBytesReceived;
+    float percent = self.progress.fractionCompleted * 100;
+    if (receivedPercent < (int64_t)percent) {
+      receivedPercent = (int64_t)percent;
       dispatch_async(dispatch_get_main_queue(), ^{
-        self.percentComplete = progress;
+        self.percentComplete = percent;
       });
     }
   };
 
-  self.authSession.taskDidCompleteWithErrorBlock = ^(NSURLSession *s,
-                                                     NSURLSessionTask *t,
-                                                     NSError *e) {
+  authSession.taskDidCompleteWithErrorBlock = ^(NSURLSession *s, NSURLSessionTask *t, NSError *e) {
     STRONGIFY(self);
     dispatch_sync(fileQueue, ^{
       [download closeFile];
@@ -79,12 +109,15 @@
     NSHTTPURLResponse *resp = (NSHTTPURLResponse *)t.response;
     if (resp.statusCode == 200) {
       __block NSString *downloadSHA256;
-      dispatch_sync(fileQueue, ^{
-        unsigned char digest[CC_SHA256_DIGEST_LENGTH];
-        CC_SHA256_Final(digest, &context);
-        downloadSHA256 = [HashUtils SHA256ForDigest:digest];
-      });
-      if (![self.requestedImage.sha256 isEqualToString:downloadSHA256]) {
+      if (self.requestedImage.sha256) {
+        dispatch_sync(fileQueue, ^{
+          unsigned char digest[CC_SHA256_DIGEST_LENGTH];
+          CC_SHA256_Final(digest, &context);
+          downloadSHA256 = [HashUtils SHA256ForDigest:digest];
+        });
+      }
+      if (self.requestedImage.sha256 &&
+          ![self.requestedImage.sha256 isEqualToString:downloadSHA256]) {
         NSLog(@"Downloaded image does not match requested image");
         [fm removeItemAtPath:downloadPath error:NULL];
         return;
@@ -99,9 +132,27 @@
     }
   };
 
-  self.task = [self.authSession.session dataTaskWithURL:self.requestedImage.URL];
-  [self.task resume];
-  self.isPausable = YES;
+  return authSession;
+}
+
+- (void)updateProgressDescription {
+  NSTimeInterval currTime = [[NSDate date] timeIntervalSinceReferenceDate];
+  uint64_t currBytes = self.progress.completedUnitCount;
+  double throughput = (currBytes - self.startBytes) / (currTime - self.startTime);
+
+  // Update the localized description that will be displayed by DownloadImageViewController.
+  // NSProgress's localizedAdditionalDescription can auto format this same info, but it won't zero
+  // pad the fraction digits and updates too frequently, resulting in horrible vibrating text.
+  NSByteCountFormatter *bf = [[NSByteCountFormatter alloc] init];
+  bf.zeroPadsFractionDigits = YES;
+  self.progress.localizedDescription = [NSString stringWithFormat:@"%@ of %@ (%@/sec)",
+      [bf stringFromByteCount:self.progress.completedUnitCount],
+      [bf stringFromByteCount:self.progress.totalUnitCount],
+      [bf stringFromByteCount:throughput]];
+
+  // Reset values for next call.
+  self.startTime = currTime;
+  self.startBytes = currBytes;
 }
 
 - (NSFileHandle *)imageDownloadFileHandleForPath:(NSString *)path {
