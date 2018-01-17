@@ -118,8 +118,9 @@ static NSString *kCustomImageKey = @"CustomImage";
   return nil;
 }
 
-- (NSData *)downloadConfigFromURL:(NSURL *)configURL error:(NSError **)error {
+- (NSData *)downloadConfigFromURL:(NSURL *)configURL error:(NSError **)outError {
   __block NSData *configData;
+  __block NSError *error;
 
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);
 
@@ -127,14 +128,14 @@ static NSString *kCustomImageKey = @"CustomImage";
                                                                NSURLResponse *response,
                                                                NSError *e) {
     if (e) {
-      *error = e;
+      error = e;
       dispatch_semaphore_signal(sema);
       return;
     }
     NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
     if (statusCode != 200 || !data) {
       NSString *errorStr = [NSString stringWithFormat:@"HTTP Error: %ld", statusCode];
-      *error = [ErrorMaker errorWithCode:18 string:errorStr];
+      error = [ErrorMaker errorWithCode:18 string:errorStr];
       dispatch_semaphore_signal(sema);
       return;
     }
@@ -143,8 +144,10 @@ static NSString *kCustomImageKey = @"CustomImage";
   }] resume];
 
   if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC))) {
-    *error = [ErrorMaker errorWithCode:19 string:@"Timed out while downloading config"];
+    error = [ErrorMaker errorWithCode:19 string:@"Timed out while downloading config"];
   }
+
+  if (outError) *outError = error;
 
   return configData;
 }

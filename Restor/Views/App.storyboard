@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="0Ft-3G-S3r">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="17C88" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="0Ft-3G-S3r">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12121"/>
@@ -249,26 +249,9 @@
                                 <rect key="frame" x="20" y="62" width="410" height="20"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <connections>
-                                    <binding destination="jch-zK-1Jk" name="value" keyPath="self.percentComplete" id="Zv3-c6-05b"/>
+                                    <binding destination="jch-zK-1Jk" name="value" keyPath="self.percentComplete" id="beT-cm-FKQ"/>
                                 </connections>
                             </progressIndicator>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CCv-EN-KAe">
-                                <rect key="frame" x="293" y="47" width="139" height="17"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Label" id="ve0-ZT-wDm">
-                                    <numberFormatter key="formatter" formatterBehavior="custom10_4" numberStyle="percent" lenient="YES" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" id="co6-Ms-ZEA">
-                                        <integer key="multiplier" value="1"/>
-                                        <real key="minimum" value="0.0"/>
-                                        <real key="maximum" value="100"/>
-                                    </numberFormatter>
-                                    <font key="font" metaFont="smallSystem"/>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                                <connections>
-                                    <binding destination="jch-zK-1Jk" name="value" keyPath="self.percentComplete" id="ooS-0a-lem"/>
-                                </connections>
-                            </textField>
                             <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gA3-G7-3Wj">
                                 <rect key="frame" x="344" y="11" width="92" height="32"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
@@ -311,9 +294,39 @@ Gw
                                     </binding>
                                 </connections>
                             </button>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WWy-bS-bfW">
+                                <rect key="frame" x="18" y="53" width="234" height="14"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Progress Description" id="hns-h3-yVc">
+                                    <font key="font" metaFont="smallSystem"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="jch-zK-1Jk" name="value" keyPath="self.progress.localizedDescription" id="XCT-rZ-LB6"/>
+                                </connections>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CCv-EN-KAe">
+                                <rect key="frame" x="317" y="53" width="115" height="14"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Percent Complete" id="ve0-ZT-wDm">
+                                    <numberFormatter key="formatter" formatterBehavior="custom10_4" numberStyle="percent" lenient="YES" minimumIntegerDigits="1" maximumIntegerDigits="2000000000" id="co6-Ms-ZEA">
+                                        <integer key="multiplier" value="100"/>
+                                        <real key="minimum" value="0.0"/>
+                                        <real key="maximum" value="100"/>
+                                    </numberFormatter>
+                                    <font key="font" metaFont="smallSystem"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                                <connections>
+                                    <binding destination="jch-zK-1Jk" name="value" keyPath="self.progress.fractionCompleted" id="6Tm-Tg-E9d"/>
+                                </connections>
+                            </textField>
                         </subviews>
                     </view>
                 </viewController>
+                <userDefaultsController representsSharedInstance="YES" id="o5R-OA-Dog"/>
             </objects>
             <point key="canvasLocation" x="77" y="1717"/>
         </scene>
@@ -476,7 +489,7 @@ Gw
                                     <subviews>
                                         <collectionView selectable="YES" allowsEmptySelection="NO" allowsMultipleSelection="YES" id="Vj6-Iw-9Oi">
                                             <rect key="frame" x="0.0" y="0.0" width="560" height="249"/>
-                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                             <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="2" minimumLineSpacing="5" id="8Op-Cg-Dkn">
                                                 <size key="itemSize" width="150" height="120"/>
                                             </collectionViewFlowLayout>
