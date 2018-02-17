@@ -280,8 +280,8 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
       NSError *e = [NSError errorWithDomain:@"com.google.corp.restord"
                                        code:555
                                    userInfo:@{
-        NSLocalizedDescriptionKey:@"Cannot create an APFS Container. "
-                                  @"This is only supported on macOS 10.13+."
+        NSLocalizedDescriptionKey:@"You can only apply a 10.13 or later image "
+                                  @"from a Mac running 10.13 or later."
       }];
       [[self.client remoteObjectProxy] errorOccurred:e];
       return ret;
