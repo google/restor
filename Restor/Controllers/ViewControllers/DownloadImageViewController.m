@@ -85,18 +85,19 @@
       [download writeData:d];
     });
 
-    if (!self.progress) {
-      self.progress = [NSProgress progressWithTotalUnitCount:t.countOfBytesExpectedToReceive];
-      self.progress.localizedDescription = @"";
-    }
-    self.progress.completedUnitCount = t.countOfBytesReceived;
-    float percent = self.progress.fractionCompleted * 100;
-    if (receivedPercent < (int64_t)percent) {
-      receivedPercent = (int64_t)percent;
-      dispatch_async(dispatch_get_main_queue(), ^{
+    // Deal with all progress indicator changes on the main thread.
+    dispatch_async(dispatch_get_main_queue(), ^{
+      if (!self.progress) {
+        self.progress = [NSProgress progressWithTotalUnitCount:t.countOfBytesExpectedToReceive];
+        self.progress.localizedDescription = @"";
+      }
+      self.progress.completedUnitCount = t.countOfBytesReceived;
+      float percent = self.progress.fractionCompleted * 100;
+      if (receivedPercent < (int64_t)percent) {
+        receivedPercent = (int64_t)percent;
         self.percentComplete = percent;
-      });
-    }
+      }
+    });
   };
 
   authSession.taskDidCompleteWithErrorBlock = ^(NSURLSession *s, NSURLSessionTask *t, NSError *e) {
@@ -127,6 +128,7 @@
         [self dismissController:self];
       });
     } else {
+      // TODO: (Issue #19) display an error message here
       NSLog(@"Error downloading image: %@", e);
       [fm removeItemAtPath:downloadPath error:NULL];
     }
