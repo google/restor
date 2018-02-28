@@ -148,16 +148,16 @@
   NSString *throughput = @"";
   if (dt > 0) {
     throughput = [NSString stringWithFormat:@"(%@/sec)",
-                  [bf stringFromByteCount:(currBytes - self.startBytes) / dt]];
+        [bf stringFromByteCount:(currBytes - self.startBytes) / dt]];
   }
 
   // Update the localized description that will be displayed by DownloadImageViewController.
   // NSProgress's localizedAdditionalDescription can auto format this same info, but it won't zero
   // pad the fraction digits and updates too frequently, resulting in horrible vibrating text.
   self.progress.localizedDescription = [NSString stringWithFormat:@"%@ of %@ %@",
-                                        [bf stringFromByteCount:self.progress.completedUnitCount],
-                                        [bf stringFromByteCount:self.progress.totalUnitCount],
-                                        throughput];
+      [bf stringFromByteCount:self.progress.completedUnitCount],
+      [bf stringFromByteCount:self.progress.totalUnitCount],
+      throughput];
 
   // Reset values for next call.
   self.startTime = currTime;
