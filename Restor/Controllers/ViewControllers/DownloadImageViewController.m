@@ -138,19 +138,26 @@
 }
 
 - (void)updateProgressDescription {
+  NSByteCountFormatter *bf = [[NSByteCountFormatter alloc] init];
+  bf.zeroPadsFractionDigits = YES;
+
+  // Calculate throughput, while guarding against division by zero.
   NSTimeInterval currTime = [[NSDate date] timeIntervalSinceReferenceDate];
   uint64_t currBytes = self.progress.completedUnitCount;
-  double throughput = (currBytes - self.startBytes) / (currTime - self.startTime);
+  NSTimeInterval dt = currTime - self.startTime;
+  NSString *throughput = @"";
+  if (dt > 0) {
+    throughput = [NSString stringWithFormat:@"(%@/sec)",
+        [bf stringFromByteCount:(currBytes - self.startBytes) / dt]];
+  }
 
   // Update the localized description that will be displayed by DownloadImageViewController.
   // NSProgress's localizedAdditionalDescription can auto format this same info, but it won't zero
   // pad the fraction digits and updates too frequently, resulting in horrible vibrating text.
-  NSByteCountFormatter *bf = [[NSByteCountFormatter alloc] init];
-  bf.zeroPadsFractionDigits = YES;
-  self.progress.localizedDescription = [NSString stringWithFormat:@"%@ of %@ (%@/sec)",
+  self.progress.localizedDescription = [NSString stringWithFormat:@"%@ of %@ %@",
       [bf stringFromByteCount:self.progress.completedUnitCount],
       [bf stringFromByteCount:self.progress.totalUnitCount],
-      [bf stringFromByteCount:throughput]];
+      throughput];
 
   // Reset values for next call.
   self.startTime = currTime;
