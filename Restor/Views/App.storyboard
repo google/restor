@@ -214,11 +214,54 @@
                                     <binding destination="3AT-TD-MnR" name="value" keyPath="self.error.localizedDescription" id="3F0-lT-pXb"/>
                                 </connections>
                             </textField>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6Ds-H8-Y0n">
+                                <rect key="frame" x="336" y="64" width="112" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="3m0-qv-ff2"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Try Again" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="eha-Ee-hPK">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="attemptConfiguration:" target="3AT-TD-MnR" id="jY1-r0-tim"/>
+                                    <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="saI-oN-yFc">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSIsNil</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </button>
+                            <button horizontalHuggingPriority="100" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="VBA-DW-4Lw">
+                                <rect key="frame" x="153" y="64" width="112" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="uMY-qw-hR1"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Quit" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pSE-S1-wNt">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="terminate:" target="axV-hC-CfI" id="cVp-FE-6MZ"/>
+                                    <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="Egh-El-WXW">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSIsNil</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="gCb-Ya-fn4" firstAttribute="top" secondItem="tcp-Am-8Fw" secondAttribute="top" constant="156" id="00o-64-vLg"/>
+                            <constraint firstItem="6Ds-H8-Y0n" firstAttribute="trailing" secondItem="gCb-Ya-fn4" secondAttribute="trailing" id="0Qh-dD-1mD"/>
                             <constraint firstItem="gCb-Ya-fn4" firstAttribute="centerX" secondItem="etC-Hw-gmU" secondAttribute="centerX" constant="0.5" id="2U5-Td-Hfj"/>
+                            <constraint firstItem="6Ds-H8-Y0n" firstAttribute="top" secondItem="tcp-Am-8Fw" secondAttribute="top" constant="308" id="MFM-hw-QRT"/>
                             <constraint firstItem="gCb-Ya-fn4" firstAttribute="centerX" secondItem="tcp-Am-8Fw" secondAttribute="centerX" constant="0.5" id="N4e-ME-MgH"/>
+                            <constraint firstItem="VBA-DW-4Lw" firstAttribute="leading" secondItem="gCb-Ya-fn4" secondAttribute="leading" id="YOj-wF-NQd"/>
+                            <constraint firstItem="VBA-DW-4Lw" firstAttribute="top" secondItem="tcp-Am-8Fw" secondAttribute="top" constant="308" id="fhd-y3-BIK"/>
                             <constraint firstItem="etC-Hw-gmU" firstAttribute="leading" secondItem="tcp-Am-8Fw" secondAttribute="leading" constant="86" id="iwb-g2-FV9"/>
                             <constraint firstItem="etC-Hw-gmU" firstAttribute="top" secondItem="gCb-Ya-fn4" secondAttribute="bottom" constant="16" id="xyb-4x-o3w"/>
                         </constraints>

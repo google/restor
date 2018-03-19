@@ -31,9 +31,7 @@ static NSString *kCustomImageKey = @"CustomImage";
 
 @interface ConfigViewController ()
 @property NSMutableArray<Image *> *images;
-
 @property NSError *error;
-
 @property NSString *loadingField;
 @end
 
@@ -42,12 +40,14 @@ static NSString *kCustomImageKey = @"CustomImage";
 - (void)viewDidAppear {
   [super viewDidAppear];
 
-  self.loadingField = NSLocalizedString(@"Downloading configuration...", nil);
-
   if (!self.session) {
     self.session = [[[MOLAuthenticatingURLSession alloc] init] session];
   }
 
+  [self attemptConfiguration:self];
+}
+
+- (IBAction)attemptConfiguration:(id)sender {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
     NSError *error;
 
@@ -119,6 +119,10 @@ static NSString *kCustomImageKey = @"CustomImage";
 }
 
 - (NSData *)downloadConfigFromURL:(NSURL *)configURL error:(NSError **)outError {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    self.loadingField = NSLocalizedString(@"Downloading configuration...", nil);
+  });
+
   __block NSData *configData;
   __block NSError *error;
 
