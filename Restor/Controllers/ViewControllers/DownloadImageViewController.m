@@ -108,7 +108,17 @@
 
     NSFileManager *fm = [NSFileManager defaultManager];
     NSHTTPURLResponse *resp = (NSHTTPURLResponse *)t.response;
-    if (resp.statusCode == 200) {
+    if (self.isCancelled) {
+      [fm removeItemAtPath:downloadPath error:NULL];
+    } else if (e || resp.statusCode != 200) {
+      [fm removeItemAtPath:downloadPath error:NULL];
+      NSString *text = e.localizedDescription;
+      if (!text) {
+        text = [NSString stringWithFormat:@"Error downloading image.\n"
+                                          @"Received HTTP status code %ld.", resp.statusCode];
+      }
+      [self displayErrorWithFormat:text];
+    } else {
       __block NSString *downloadSHA256;
       if (self.requestedImage.sha256) {
         dispatch_sync(fileQueue, ^{
@@ -119,22 +129,37 @@
       }
       if (self.requestedImage.sha256 &&
           ![self.requestedImage.sha256 isEqualToString:downloadSHA256]) {
-        NSLog(@"Downloaded image does not match requested image");
         [fm removeItemAtPath:downloadPath error:NULL];
+        [self displayErrorWithFormat:@"Downloaded image does not match requested image."];
         return;
       }
       [fm moveItemAtPath:downloadPath toPath:self.requestedImage.localURL.path error:NULL];
       dispatch_async(dispatch_get_main_queue(), ^{
         [self dismissController:self];
       });
-    } else {
-      // TODO: (Issue #19) display an error message here
-      NSLog(@"Error downloading image: %@", e);
-      [fm removeItemAtPath:downloadPath error:NULL];
     }
   };
 
   return authSession;
+}
+
+// Display an error alert sheet with the given message, then dismiss this DownloadImageView.
+- (void)displayErrorWithFormat:(NSString *)format, ... {
+  va_list args;
+  va_start(args, format);
+  NSString *msg = [[NSString alloc] initWithFormat:format arguments:args];
+  va_end(args);
+  // Log the error message.
+  NSLog(@"Error: %@", msg);
+  // Then display an alert.
+  NSAlert *alert = [[NSAlert alloc] init];
+  alert.alertStyle = NSAlertStyleCritical;
+  alert.messageText = msg;
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse rc) {
+      [self cancel:self];
+    }];
+  });
 }
 
 - (void)updateProgressDescription {

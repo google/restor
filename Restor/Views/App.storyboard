@@ -283,7 +283,7 @@ DQ
                                 <rect key="frame" x="18" y="102" width="414" height="28"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Downloading Sierra" id="9Oa-1F-MKM">
-                                    <font key="font" metaFont="systemThin" size="23"/>
+                                    <font key="font" metaFont="systemThin" size="21"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -392,7 +392,7 @@ Gw
                                 <rect key="frame" x="18" y="92" width="414" height="28"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Custom Image.." id="Vs9-YP-S8M">
-                                    <font key="font" metaFont="systemThin" size="23"/>
+                                    <font key="font" metaFont="systemThin" size="21"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
