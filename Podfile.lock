@@ -1,22 +1,22 @@
 PODS:
-  - MOLAuthenticatingURLSession (2.3):
-    - MOLCertificate (~> 1.7)
-  - MOLCertificate (1.7)
-  - MOLCodesignChecker (1.7):
-    - MOLCertificate (~> 1.7)
-  - MOLXPCConnection (1.0):
-    - MOLCodesignChecker (~> 1.7)
+  - MOLAuthenticatingURLSession (2.4):
+    - MOLCertificate (~> 1.8)
+  - MOLCertificate (1.8)
+  - MOLCodesignChecker (1.9):
+    - MOLCertificate (~> 1.8)
+  - MOLXPCConnection (1.1):
+    - MOLCodesignChecker (~> 1.9)
 
 DEPENDENCIES:
   - MOLAuthenticatingURLSession
   - MOLXPCConnection
 
 SPEC CHECKSUMS:
-  MOLAuthenticatingURLSession: 7d03f086e9f2b88a44b3d3a4cea7168d8a35035a
-  MOLCertificate: 1cdb264405631b4bbdcf4cde7627469290cf1187
-  MOLCodesignChecker: c2aec7e7b7775b37da7619341ec926a2816aabdb
-  MOLXPCConnection: e5d75140ecfb0ac90c59c64bdf187359948eceb0
+  MOLAuthenticatingURLSession: c238aa1c9a7b1077eb39a6f40204bfe76a7d204e
+  MOLCertificate: c999513316d511c69f290fbf313dfe8dca4ad592
+  MOLCodesignChecker: 303c01755646a0045c97f9f0b0fe5945ead42130
+  MOLXPCConnection: de9d5535928f59766a768384e411077b83ec2f9c
 
 PODFILE CHECKSUM: 5cf4b07f7d175476d2cc6f41208074b1933af454
 
-COCOAPODS: 1.2.1
+COCOAPODS: 1.4.0
