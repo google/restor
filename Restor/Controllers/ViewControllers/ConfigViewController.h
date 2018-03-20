@@ -25,4 +25,7 @@
 
 @property(readonly, nonatomic) ImageCacheController *imageCacheController;
 
+// Download & parse config, connect to helper tool, and validate image cache.
+- (IBAction)attemptConfiguration:(id)sender;
+
 @end

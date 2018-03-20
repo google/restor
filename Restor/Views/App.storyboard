@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="17C88" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="0Ft-3G-S3r">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="0Ft-3G-S3r">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12121"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13771"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
         <capability name="system font weights other than Regular or Bold" minToolsVersion="7.0"/>
     </dependencies>
@@ -119,8 +119,12 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <font key="font" metaFont="message"/>
                         <tabViewItems/>
+                        <connections>
+                            <outlet property="delegate" destination="gIj-nW-gPn" id="McD-qg-MF7"/>
+                        </connections>
                     </tabView>
                     <connections>
+                        <outlet property="tabView" destination="odW-7b-rfe" id="6NL-DK-XQE"/>
                         <segue destination="3AT-TD-MnR" kind="relationship" relationship="tabItems" id="wkc-Qd-K1E"/>
                         <segue destination="2DG-up-bcd" kind="relationship" relationship="tabItems" id="WpW-dM-29G"/>
                     </connections>
@@ -136,6 +140,9 @@
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
                         <rect key="contentRect" x="2795" y="461" width="600" height="400"/>
                         <rect key="screenRect" x="2560" y="0.0" width="2560" height="1418"/>
+                        <connections>
+                            <outlet property="delegate" destination="0Ft-3G-S3r" id="vMf-cy-yre"/>
+                        </connections>
                     </window>
                     <connections>
                         <segue destination="gIj-nW-gPn" kind="relationship" relationship="window.shadowedContentViewController" id="tCe-0A-Bcp"/>
@@ -185,7 +192,7 @@
                             </progressIndicator>
                             <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="yZa-Wn-5XX">
                                 <rect key="frame" x="276" y="169" width="48" height="48"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSCaution" id="R4X-g3-Sh9"/>
                                 <connections>
                                     <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="OXM-w2-OF3">
@@ -197,7 +204,7 @@
                             </imageView>
                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ogT-vu-URn">
                                 <rect key="frame" x="18" y="100" width="564" height="61"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" enabled="NO" sendsActionOnEndEditing="YES" alignment="center" title="Error text will go here if there is any" id="TcE-tZ-3vA">
                                     <font key="font" metaFont="system"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -207,11 +214,54 @@
                                     <binding destination="3AT-TD-MnR" name="value" keyPath="self.error.localizedDescription" id="3F0-lT-pXb"/>
                                 </connections>
                             </textField>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6Ds-H8-Y0n">
+                                <rect key="frame" x="336" y="64" width="112" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="3m0-qv-ff2"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Try Again" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="eha-Ee-hPK">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="attemptConfiguration:" target="3AT-TD-MnR" id="jY1-r0-tim"/>
+                                    <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="saI-oN-yFc">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSIsNil</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </button>
+                            <button horizontalHuggingPriority="100" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="VBA-DW-4Lw">
+                                <rect key="frame" x="153" y="64" width="112" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="100" id="uMY-qw-hR1"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Quit" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pSE-S1-wNt">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="terminate:" target="axV-hC-CfI" id="cVp-FE-6MZ"/>
+                                    <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="Egh-El-WXW">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSIsNil</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </button>
                         </subviews>
                         <constraints>
                             <constraint firstItem="gCb-Ya-fn4" firstAttribute="top" secondItem="tcp-Am-8Fw" secondAttribute="top" constant="156" id="00o-64-vLg"/>
+                            <constraint firstItem="6Ds-H8-Y0n" firstAttribute="trailing" secondItem="gCb-Ya-fn4" secondAttribute="trailing" id="0Qh-dD-1mD"/>
                             <constraint firstItem="gCb-Ya-fn4" firstAttribute="centerX" secondItem="etC-Hw-gmU" secondAttribute="centerX" constant="0.5" id="2U5-Td-Hfj"/>
+                            <constraint firstItem="6Ds-H8-Y0n" firstAttribute="top" secondItem="tcp-Am-8Fw" secondAttribute="top" constant="308" id="MFM-hw-QRT"/>
                             <constraint firstItem="gCb-Ya-fn4" firstAttribute="centerX" secondItem="tcp-Am-8Fw" secondAttribute="centerX" constant="0.5" id="N4e-ME-MgH"/>
+                            <constraint firstItem="VBA-DW-4Lw" firstAttribute="leading" secondItem="gCb-Ya-fn4" secondAttribute="leading" id="YOj-wF-NQd"/>
+                            <constraint firstItem="VBA-DW-4Lw" firstAttribute="top" secondItem="tcp-Am-8Fw" secondAttribute="top" constant="308" id="fhd-y3-BIK"/>
                             <constraint firstItem="etC-Hw-gmU" firstAttribute="leading" secondItem="tcp-Am-8Fw" secondAttribute="leading" constant="86" id="iwb-g2-FV9"/>
                             <constraint firstItem="etC-Hw-gmU" firstAttribute="top" secondItem="gCb-Ya-fn4" secondAttribute="bottom" constant="16" id="xyb-4x-o3w"/>
                         </constraints>
@@ -233,7 +283,7 @@
                                 <rect key="frame" x="18" y="102" width="414" height="28"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Downloading Sierra" id="9Oa-1F-MKM">
-                                    <font key="font" metaFont="systemThin" size="23"/>
+                                    <font key="font" metaFont="systemThin" size="21"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -294,7 +344,7 @@ Gw
                                     </binding>
                                 </connections>
                             </button>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WWy-bS-bfW">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WWy-bS-bfW">
                                 <rect key="frame" x="18" y="53" width="234" height="14"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Progress Description" id="hns-h3-yVc">
@@ -342,7 +392,7 @@ Gw
                                 <rect key="frame" x="18" y="92" width="414" height="28"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Custom Image.." id="Vs9-YP-S8M">
-                                    <font key="font" metaFont="systemThin" size="23"/>
+                                    <font key="font" metaFont="systemThin" size="21"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -354,7 +404,7 @@ Gw
                                     </binding>
                                 </connections>
                             </textField>
-                            <textField verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="H07-ga-vOA">
+                            <textField verticalHuggingPriority="750" fixedFrame="YES" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="H07-ga-vOA">
                                 <rect key="frame" x="20" y="49" width="410" height="22"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="URL" placeholderString="URL" drawsBackground="YES" usesSingleLineMode="YES" id="0Tb-AO-3tN">
@@ -409,7 +459,7 @@ Gw
                         <rect key="frame" x="0.0" y="0.0" width="450" height="230"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fqX-BU-0bZ">
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fqX-BU-0bZ">
                                 <rect key="frame" x="132" y="182" width="186" height="28"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Auto-image Mode" id="VQk-bb-10A">
