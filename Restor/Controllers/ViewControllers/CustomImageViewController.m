@@ -13,22 +13,30 @@
 ///    limitations under the License.
 
 #import "CustomImageViewController.h"
-
-@interface CustomImageViewController ()
-@property(readwrite, nonatomic) BOOL shouldContinue;
-@property(readwrite, copy) NSString *imageURL;
-@end
+#import "Image.h"
 
 @implementation CustomImageViewController
 
-- (IBAction)cancel:(id)sender {
-  self.shouldContinue = NO;
-  [self.presentingViewController dismissViewController:self];
+- (IBAction)continue:(id)sender {
+  if (self.imageURL.length == 0) return;
+  [self dismissViewController:self];
+
+  if (!self.completionBlock) return;
+
+  // Create a new custom image and pass it to the completion block.
+  Image *image = [[Image alloc] initWithDictionary:@{
+      @"Name" : self.imageURL.pathComponents.lastObject.stringByDeletingPathExtension,
+      @"URL" : self.imageURL
+  }];
+  if ([image.URL.scheme isEqualToString:@"file"]) {
+    image.localURL = image.URL;
+  }
+  self.completionBlock(image);
 }
 
-- (IBAction)continue:(id)sender {
-  self.shouldContinue = YES;
-  [self.presentingViewController dismissViewController:self];
+- (IBAction)cancel:(id)sender {
+  [self dismissViewController:self];
+  if (self.cancelBlock) self.cancelBlock();
 }
 
 @end

@@ -26,4 +26,7 @@
 @property(nonatomic) NSURLSession *URLSession;
 @property(nonatomic) MOLXPCConnection *helperConnection;
 
+- (IBAction)downloadImage:(id)sender;
+- (IBAction)showCachedImageInFinder:(id)sender;
+
 @end

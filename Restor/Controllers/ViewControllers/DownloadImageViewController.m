@@ -37,7 +37,7 @@
 
 - (void)viewDidAppear {
   if ([self.requestedImage.localURL checkResourceIsReachableAndReturnError:NULL]) {
-    [self dismissController:self];
+    [self dismissWithSuccess];
   }
 
   // Reset download progress info in case this view is reappearing.
@@ -108,6 +108,7 @@
 
     NSFileManager *fm = [NSFileManager defaultManager];
     NSHTTPURLResponse *resp = (NSHTTPURLResponse *)t.response;
+
     if (self.isCancelled) {
       [fm removeItemAtPath:downloadPath error:NULL];
     } else if (e || resp.statusCode != 200) {
@@ -135,7 +136,7 @@
       }
       [fm moveItemAtPath:downloadPath toPath:self.requestedImage.localURL.path error:NULL];
       dispatch_async(dispatch_get_main_queue(), ^{
-        [self dismissController:self];
+        [self dismissWithSuccess];
       });
     }
   };
@@ -216,6 +217,12 @@
   [self.task cancel];
   self.isCancelled = YES;
   [self dismissController:self];
+  if (self.cancelBlock) self.cancelBlock();
+}
+
+- (void)dismissWithSuccess {
+  [self dismissController:self];
+  if (self.completionBlock) self.completionBlock();
 }
 
 @end
