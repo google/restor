@@ -105,7 +105,7 @@
 
 #pragma mark Actions
 
-// Hide/show the "cached" label and download button whenever the selected image changes.
+// Hide/show the cached button or download button whenever the selected image changes.
 - (IBAction)selectedImageDidChange:(id)sender {
   if ([self.selectedImage.name isEqualToString:@"Custom Image"]) {
     self.showCachedCheckmark = NO;

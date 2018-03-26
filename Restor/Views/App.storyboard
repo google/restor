@@ -522,13 +522,14 @@ Gw
             <objects>
                 <viewController title="MainViewController" showSeguePresentationStyle="single" id="2DG-up-bcd" customClass="MainViewController" sceneMemberID="viewController">
                     <view key="view" wantsLayer="YES" id="r9B-K2-SWU">
-                        <rect key="frame" x="0.0" y="0.0" width="600" height="480"/>
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="490"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="HpM-eK-Ynl">
-                                <rect key="frame" x="233" y="419" width="134" height="48"/>
+                                <rect key="frame" x="233" y="441" width="134" height="48"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="130" id="7a9-o8-GAy"/>
+                                    <constraint firstAttribute="height" constant="48" id="tm3-A3-aEp"/>
                                 </constraints>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Restor" id="XsN-Rg-7sB">
                                     <font key="font" size="40" name=".AppleSystemUIFontUltraLight"/>
@@ -537,13 +538,13 @@ Gw
                                 </textFieldCell>
                             </textField>
                             <scrollView wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="0.0" horizontalPageScroll="0.0" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" horizontalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="iP4-b5-Jft">
-                                <rect key="frame" x="20" y="82" width="560" height="329"/>
+                                <rect key="frame" x="20" y="82" width="560" height="351"/>
                                 <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="eE8-1Y-Rx0">
-                                    <rect key="frame" x="0.0" y="0.0" width="560" height="329"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="560" height="351"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <collectionView selectable="YES" allowsEmptySelection="NO" allowsMultipleSelection="YES" id="Vj6-Iw-9Oi">
-                                            <rect key="frame" x="0.0" y="0.0" width="560" height="329"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="560" height="351"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                             <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="2" minimumLineSpacing="5" id="8Op-Cg-Dkn">
                                                 <size key="itemSize" width="150" height="120"/>
@@ -633,7 +634,7 @@ Gw
                                     </binding>
                                 </connections>
                             </button>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="5wt-9z-9Uf">
+                            <button toolTip="Download to Cache..." translatesAutoresizingMaskIntoConstraints="NO" id="5wt-9z-9Uf">
                                 <rect key="frame" x="506" y="52" width="24" height="24"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="24" id="3hM-iL-E90"/>
@@ -652,7 +653,7 @@ Gw
                                     </binding>
                                 </connections>
                             </button>
-                            <button translatesAutoresizingMaskIntoConstraints="NO" id="Rb6-rz-Usf">
+                            <button toolTip="Cached" translatesAutoresizingMaskIntoConstraints="NO" id="Rb6-rz-Usf">
                                 <rect key="frame" x="506" y="52" width="24" height="24"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="24" id="4Fa-Go-5kd"/>
@@ -679,12 +680,12 @@ Gw
                             <constraint firstItem="iP4-b5-Jft" firstAttribute="top" secondItem="HpM-eK-Ynl" secondAttribute="bottom" constant="8" id="E3N-u2-8xQ"/>
                             <constraint firstAttribute="bottom" secondItem="20D-SY-zYU" secondAttribute="bottom" constant="20" id="ESo-cv-C2e"/>
                             <constraint firstItem="HpM-eK-Ynl" firstAttribute="centerX" secondItem="r9B-K2-SWU" secondAttribute="centerX" id="FuN-wq-wbm"/>
-                            <constraint firstItem="HpM-eK-Ynl" firstAttribute="top" secondItem="r9B-K2-SWU" secondAttribute="top" constant="13" id="LJl-sn-icc"/>
+                            <constraint firstItem="HpM-eK-Ynl" firstAttribute="top" secondItem="r9B-K2-SWU" secondAttribute="top" constant="1" id="LJl-sn-icc"/>
                             <constraint firstItem="NcE-Lu-cAn" firstAttribute="top" secondItem="29m-d0-SEk" secondAttribute="bottom" constant="12" id="Nth-1c-jnl"/>
                             <constraint firstItem="NcE-Lu-cAn" firstAttribute="centerX" secondItem="29m-d0-SEk" secondAttribute="centerX" id="OIE-1R-kWP"/>
                             <constraint firstAttribute="bottom" secondItem="YUi-F3-k0J" secondAttribute="bottom" constant="20" id="QpF-ce-M4c"/>
-                            <constraint firstAttribute="bottom" secondItem="iP4-b5-Jft" secondAttribute="bottom" constant="82" id="VMD-jc-fwk"/>
                             <constraint firstItem="29m-d0-SEk" firstAttribute="leading" secondItem="Vj6-Iw-9Oi" secondAttribute="leading" constant="50" id="WDk-DF-ToQ"/>
+                            <constraint firstItem="29m-d0-SEk" firstAttribute="top" secondItem="iP4-b5-Jft" secondAttribute="bottom" constant="8" id="YQ2-V8-PPb"/>
                             <constraint firstItem="YUi-F3-k0J" firstAttribute="leading" secondItem="29m-d0-SEk" secondAttribute="leading" id="ZMA-vP-NcL"/>
                             <constraint firstItem="29m-d0-SEk" firstAttribute="top" secondItem="Vj6-Iw-9Oi" secondAttribute="bottom" constant="12" id="ZbD-35-1Mu"/>
                             <constraint firstItem="iP4-b5-Jft" firstAttribute="leading" secondItem="r9B-K2-SWU" secondAttribute="leading" constant="20" id="af4-Pg-7Z0"/>
