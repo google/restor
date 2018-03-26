@@ -2,12 +2,12 @@
   "images" : [
     {
       "idiom" : "universal",
-      "filename" : "ic_file_download_black_24dp_1x.png",
+      "filename" : "file_download_black_24.png",
       "scale" : "1x"
     },
     {
       "idiom" : "universal",
-      "filename" : "ic_file_download_black_24dp_2x.png",
+      "filename" : "file_download_black_48.png",
       "scale" : "2x"
     },
     {
