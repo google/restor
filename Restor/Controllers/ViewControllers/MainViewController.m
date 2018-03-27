@@ -204,7 +204,7 @@
 // Start imaging all selected disks using the currently selected image.
 - (void)imageAllSelectedDisks {
   for (NSIndexPath *indexPath in self.collectionView.selectionIndexPaths) {
-    NSViewController *item = [self.collectionView itemAtIndexPath:indexPath];
+    NSCollectionViewItem *item = [self.collectionView itemAtIndexPath:indexPath];
     if (![item isKindOfClass:[CollectionViewItemAvailable class]]) continue;
     [self imageDisk:((CollectionViewItemAvailable *)item).representedObject];
   }
