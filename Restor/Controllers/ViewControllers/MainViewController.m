@@ -206,7 +206,7 @@
   for (NSIndexPath *indexPath in self.collectionView.selectionIndexPaths) {
     NSCollectionViewItem *item = [self.collectionView itemAtIndexPath:indexPath];
     if (![item isKindOfClass:[CollectionViewItemAvailable class]]) continue;
-    [self imageDisk:((CollectionViewItemAvailable *)item).representedObject];
+    [self imageDisk:item.representedObject];
   }
 }
 
