@@ -20,6 +20,6 @@
 - (IBAction)continue:(id)sender;
 - (IBAction)cancel:(id)sender;
 
-@property void (^completionBlock)(void);
-@property void (^cancelBlock)(void);
+@property(copy) void (^completionBlock)(void);
+@property(copy) void (^cancelBlock)(void);
 @end

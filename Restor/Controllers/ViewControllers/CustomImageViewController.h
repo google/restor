@@ -18,6 +18,6 @@
 
 @interface CustomImageViewController : NSViewController
 @property(readonly, copy) NSString *imageURL;
-@property void (^completionBlock)(Image *customImage);
-@property void (^cancelBlock)(void);
+@property(copy) void (^completionBlock)(Image *customImage);
+@property(copy) void (^cancelBlock)(void);
 @end
