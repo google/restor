@@ -20,6 +20,6 @@
 - (IBAction)continue:(id)sender;
 - (IBAction)cancel:(id)sender;
 
-@property(readonly, nonatomic) BOOL shouldContinue;
-
+@property(copy) void (^completionBlock)(void);
+@property(copy) void (^cancelBlock)(void);
 @end

@@ -14,20 +14,16 @@
 
 #import "AutoImageWarningViewController.h"
 
-@interface AutoImageWarningViewController ()
-@property(readwrite, nonatomic) BOOL shouldContinue;
-@end
-
 @implementation AutoImageWarningViewController
 
 - (IBAction)continue:(id)sender {
-  self.shouldContinue = YES;
-  [self.presentingViewController dismissViewController:self];
+  [self dismissViewController:self];
+  if (self.completionBlock) self.completionBlock();
 }
 
 - (IBAction)cancel:(id)sender {
-  self.shouldContinue = NO;
-  [self.presentingViewController dismissViewController:self];
+  [self dismissViewController:self];
+  if (self.cancelBlock) self.cancelBlock();
 }
 
 @end

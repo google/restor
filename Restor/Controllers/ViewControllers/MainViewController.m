@@ -32,7 +32,6 @@
 @interface MainViewController ()
 
 @property IBOutlet NSCollectionView *collectionView;
-@property IBOutlet NSPopUpButton *imageSelector;
 
 @property Image *selectedImage;
 
@@ -40,8 +39,11 @@
 @property NSMutableArray<Disk *> *connectedDisks;
 @property NSMutableDictionary<NSString *, ImagingSession *> *imagingSessions;
 
-@property SEL nextSelector;
 @property BOOL autoImageMode;
+@property BOOL showCachedCheckmark;
+@property BOOL showDownloadButton;
+
+- (IBAction)selectedImageDidChange:(id)sender;
 
 @end
 
@@ -56,6 +58,7 @@
 
 - (void)viewDidAppear {
   self.selectedImage = self.imageCacheController.images.firstObject;
+  [self selectedImageDidChange:self];
 }
 
 #pragma mark Disk Content
@@ -102,48 +105,58 @@
 
 #pragma mark Actions
 
+// Hide/show the cached button or download button whenever the selected image changes.
+- (IBAction)selectedImageDidChange:(id)sender {
+  if ([self.selectedImage.name isEqualToString:@"Custom Image"]) {
+    self.showCachedCheckmark = NO;
+    self.showDownloadButton = NO;
+  } else {
+    if (!self.selectedImage.localURL) {
+      self.selectedImage.localURL =
+          [self.imageCacheController localPathForImage:self.selectedImage];
+    }
+    if ([self.selectedImage.localURL checkResourceIsReachableAndReturnError:NULL]) {
+      self.showCachedCheckmark = YES;
+      self.showDownloadButton = NO;
+    } else {
+      self.showCachedCheckmark = NO;
+      self.showDownloadButton = YES;
+    }
+  }
+}
+
+// This method is called when the user clicks the "Image..." button or if the user clicks through
+// the "Auto Image..." warning sheet.  If "Custom Image" has been selected in the popup button,
+// display the custom image sheet, which may display the download sheet, then do imaging.  If a
+// regular item has been selected, then possibly display download sheet, then do imaging.
 - (IBAction)image:(id)sender {
   if ([self.selectedImage.name isEqualToString:@"Custom Image"]) {
-    self.nextSelector = @selector(downloadImage);
-    [self performSegueWithIdentifier:@"PresentCustomImageSheet" sender:self];
+    [self showCustomImageView];
   } else {
-    [self downloadImage];
+    [self downloadIfNeededWithCompletionBlock:^{
+      [self imageAllSelectedDisks];
+    }];
   }
 }
 
-- (void)downloadImage {
-  if (!self.selectedImage.localURL) {
-    self.selectedImage.localURL = [self.imageCacheController localPathForImage:self.selectedImage];
-  }
-  if (![self.selectedImage.localURL checkResourceIsReachableAndReturnError:NULL]) {
-    self.nextSelector = @selector(imagePartTwo);
-    [self performSegueWithIdentifier:@"PresentDownloadSheet" sender:self];
-    return;
-  }
-  [self imagePartTwo];
-}
-
-- (void)imagePartTwo {
-  for (NSIndexPath *indexPath in self.collectionView.selectionIndexPaths) {
-    NSViewController *item = [self.collectionView itemAtIndexPath:indexPath];
-    if (![item isKindOfClass:[CollectionViewItemAvailable class]]) continue;
-    CollectionViewItemAvailable *cvia = (CollectionViewItemAvailable *)item;
-    [self imageDisk:cvia.representedObject];
-  }
+// Download the currently selected image to the image cache.
+- (IBAction)downloadImage:(id)sender {
+  [self downloadIfNeededWithCompletionBlock:nil];
 }
 
 - (IBAction)autoImage:(id)sender {
-  [self performSegueWithIdentifier:@"PresentAutoImageWarningSheet" sender:self];
-}
-
-- (IBAction)autoImageContinue:(id)sender {
-  self.autoImageMode = YES;
-  [self.collectionView selectAll:sender];
-  [self image:self];
+  [self showAutoImageWarningView];
 }
 
 - (IBAction)autoImageStop:(id)sender {
   self.autoImageMode = NO;
+}
+
+- (IBAction)showCachedImageInFinder:(id)sender {
+  if (!self.selectedImage.localURL) {
+    self.selectedImage.localURL = [self.imageCacheController localPathForImage:self.selectedImage];
+  }
+  [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[self.selectedImage.localURL]];
 }
 
 #pragma mark Collection View Data Source/Delegate
@@ -174,6 +187,30 @@
 
 #pragma mark Begin Imaging
 
+// If the selected image is not in the local cache, then presents the download sheet to get it and
+// executes the completion block if download is successful.  If the selected image is already in
+// the cache, then just immediately executes the completion block.
+- (void)downloadIfNeededWithCompletionBlock:(nullable void (^)(void))block {
+  if (!self.selectedImage.localURL) {
+    self.selectedImage.localURL = [self.imageCacheController localPathForImage:self.selectedImage];
+  }
+  if (![self.selectedImage.localURL checkResourceIsReachableAndReturnError:NULL]) {
+    [self showDownloadImageViewWithCompletionBlock:block];
+  } else if (block) {
+    block();
+  }
+}
+
+// Start imaging all selected disks using the currently selected image.
+- (void)imageAllSelectedDisks {
+  for (NSIndexPath *indexPath in self.collectionView.selectionIndexPaths) {
+    NSCollectionViewItem *item = [self.collectionView itemAtIndexPath:indexPath];
+    if (![item isKindOfClass:[CollectionViewItemAvailable class]]) continue;
+    [self imageDisk:item.representedObject];
+  }
+}
+
+// Start imaging a single connected disk using the currently selected image.
 - (void)imageDisk:(Disk *)disk {
   ImagingSession *is = [[ImagingSession alloc] initWithImage:self.selectedImage
                                                   targetDisk:disk
@@ -189,56 +226,68 @@
 
 #pragma mark Sheet Presentation
 
-- (void)prepareForSegue:(NSStoryboardSegue *)segue sender:(id)sender {
-  [super prepareForSegue:segue sender:sender];
+// Display a warning about auto imaging before entering auto image mode.
+// If user doesn't cancel, then immediately start imaging any connected disks.
+- (void)showAutoImageWarningView {
+  NSStoryboard *sb = [NSStoryboard storyboardWithName:@"App" bundle:nil];
+  AutoImageWarningViewController *vc =
+      [sb instantiateControllerWithIdentifier:@"AutoImageWarningSheet"];
 
-  if ([segue.destinationController isKindOfClass:[DownloadImageViewController class]]) {
-    DownloadImageViewController *divc = (DownloadImageViewController *)segue.destinationController;
-    divc.requestedImage = self.selectedImage;
-  }
+  vc.completionBlock = ^{
+    self.autoImageMode = YES;
+    [self.collectionView selectAll:nil];
+    [self image:self];
+  };
+
+  vc.cancelBlock = ^{
+    self.autoImageMode = NO;
+  };
+
+  [self presentViewControllerAsSheet:vc];
 }
 
-- (void)dismissViewController:(NSViewController *)viewController {
-  [super dismissViewController:viewController];
+// Display the download sheet to download a remote image.  If the download finishes successfully,
+// then execute the given completion block.
+- (void)showDownloadImageViewWithCompletionBlock:(nullable void (^)(void))block {
+  NSStoryboard *sb = [NSStoryboard storyboardWithName:@"App" bundle:nil];
+  DownloadImageViewController *vc = [sb instantiateControllerWithIdentifier:@"DownloadSheet"];
+  vc.requestedImage = self.selectedImage;
 
-  if ([viewController isKindOfClass:[AutoImageWarningViewController class]]) {
-    AutoImageWarningViewController *aiwvc = (AutoImageWarningViewController *)viewController;
-    self.nextSelector = nil;
-    if (aiwvc.shouldContinue) {
-      [self autoImageContinue:self];
-    }
-  } else if ([viewController isKindOfClass:[CustomImageViewController class]]) {
-    CustomImageViewController *civc = (CustomImageViewController *)viewController;
-    if (!civc.shouldContinue) {
-      self.autoImageMode = NO;
-      self.nextSelector = nil;
+  vc.completionBlock = ^{
+    // If we successfully downloaded the image, we need to update the checkmark.
+    [self selectedImageDidChange:self];
+    if (block) block();
+  };
+
+  vc.cancelBlock = ^{
+    self.autoImageMode = NO;
+  };
+
+  [self presentViewControllerAsSheet:vc];
+}
+
+// Display the custom image sheet so that user can specify a custom image to use.  If the user
+// doesn't cancel, we immediately try to download the specified image and then image with it.
+- (void)showCustomImageView {
+  NSStoryboard *sb = [NSStoryboard storyboardWithName:@"App" bundle:nil];
+  CustomImageViewController *vc = [sb instantiateControllerWithIdentifier:@"CustomImageSheet"];
+
+  vc.completionBlock = ^(Image *customImage) {
+    if (customImage) {
+      self.selectedImage = customImage;
+      [self downloadIfNeededWithCompletionBlock:^{
+        [self imageAllSelectedDisks];
+      }];
     } else {
-      // Create a new custom image
-      NSDictionary *ciDict = @{
-        @"Name" : civc.imageURL.pathComponents.lastObject.stringByDeletingPathExtension,
-        @"URL" : civc.imageURL
-      };
-      Image *ci = [[Image alloc] initWithDictionary:ciDict];
-      if ([ci.URL.scheme isEqualToString:@"file"]) {
-        ci.localURL = ci.URL;
-      }
-      self.selectedImage = ci;
-      [self performSelectorOnMainThread:self.nextSelector withObject:self waitUntilDone:NO];
-      self.nextSelector = nil;
-    }
-  } else if ([viewController isKindOfClass:[DownloadImageViewController class]]) {
-    DownloadImageViewController *divc = (DownloadImageViewController *)viewController;
-    if (divc.isCancelled) {
       self.autoImageMode = NO;
-      self.nextSelector = nil;
-    } else {
-      [self performSelectorOnMainThread:self.nextSelector withObject:self waitUntilDone:NO];
-      self.nextSelector = nil;
     }
-  } else {
-    [self performSelectorOnMainThread:self.nextSelector withObject:self waitUntilDone:NO];
-    self.nextSelector = nil;
-  }
+  };
+
+  vc.cancelBlock = ^{
+    self.autoImageMode = NO;
+  };
+
+  [self presentViewControllerAsSheet:vc];
 }
 
 @end

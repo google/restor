@@ -26,7 +26,8 @@
 
 @property(nonatomic) Image *requestedImage;
 @property(readonly, nonatomic) BOOL isPausable;
-@property(readonly, nonatomic) BOOL isCancelled;
+@property(copy) void (^completionBlock)(void);
+@property(copy) void (^cancelBlock)(void);
 
 @property(nonatomic) MOLAuthenticatingURLSession *authSession;
 

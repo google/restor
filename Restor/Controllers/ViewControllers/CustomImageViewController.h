@@ -14,9 +14,10 @@
 
 @import Cocoa;
 
+@class Image;
+
 @interface CustomImageViewController : NSViewController
-
-@property(readonly, nonatomic) BOOL shouldContinue;
 @property(readonly, copy) NSString *imageURL;
-
+@property(copy) void (^completionBlock)(Image *customImage);
+@property(copy) void (^cancelBlock)(void);
 @end
