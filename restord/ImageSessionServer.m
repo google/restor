@@ -125,7 +125,7 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
       [self applyImageInfo:mountURL];
 
       [self blessMountURL:mountURL];
-//      [self unmountDisk:disk ?: self.diskRef];
+      [self unmountDisk:disk ?: self.diskRef];
     }
     if (disk) CFRelease(disk);
   }
