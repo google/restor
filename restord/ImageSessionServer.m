@@ -124,6 +124,7 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
       // Set imageinfo.plist keys
       [self applyImageInfo:mountURL];
 
+      [self blessMountURL:mountURL];
       [self unmountDisk:disk ?: self.diskRef];
     }
     if (disk) CFRelease(disk);
@@ -354,10 +355,13 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
       } else {
         [[self.client remoteObjectProxy] imagingPercentage:self.percentage];
       }
+    } else if ([line isEqualToString:@"Personalization over TDM succeeded"]) {
+      NSLog(@"%@ %@", self, line);
     } else if (line.length >= dirtyLine.length &&
                ![line isEqualToString:@"done"] &&
                ![line isEqualToString:@"Validating target..."] &&
-               ![line isEqualToString:@"Validating sizes..."]) {
+               ![line isEqualToString:@"Validating sizes..."] &&
+               ![line hasPrefix:@"nx_kernel_mount"]) {
       // If line doesn't begin with a tab (an INFO message) and isn't a known info message,
       // treat it as an error :-(
       NSLog(@"%@ ASR Error: %@", self, line);
@@ -442,6 +446,17 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
   if (error) {
     NSLog(@"%@ Failed to write imageinfo.plist: %@", self, error);
   }
+}
+
+- (void)blessMountURL:(NSURL *)mountURL {
+  NSOperatingSystemVersion version = {10, 13, 4};
+  if (![[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:version]) return;
+  NSTask *bless = [[NSTask alloc] init];
+  bless.launchPath = @"/usr/sbin/bless";
+  bless.arguments = @[ @"--folder", mountURL.path ];
+  [bless launch];
+  [bless waitUntilExit];
+  if (bless.terminationStatus != 0) NSLog(@"%@ Failed to bless: %@", self, mountURL.path);
 }
 
 @end
