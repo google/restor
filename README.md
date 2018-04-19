@@ -90,6 +90,36 @@ an error when attempting to image the machine.
 </a>
 </p>
 
+## Building from source
+
+Building Restor from source is _not_ required for general usage. Please see the
+[Releases](https://github.com/google/restor/releases) page to download a
+pre-compiled version of Restor.
+
+#### Requirements
+
+* Xcode 9+ installed
+* [cocoapods](https://cocoapods.org) installed
+* A valid "Mac Developer" Signing Certificate from Apple
+* Xcode command line tools installed
+
+#### Build steps
+
+1. `git clone https://github.com/google/restor.git`
+1. `cd restor`
+1. `pod install`
+1. Find your Team Identifer. Manually selecting the correct Team Identifier might be required if you have multiple developer certificates.
+    ```bash
+    security find-certificate -p -c "Mac Developer" | openssl x509 -inform pem -subject | perl -ne '/OU=(\w+)\// && print $1'
+    ```
+1. Build with the following command, making sure to insert a valid Team Identifier from the previous step.
+    ```bash
+    make release TEAM_ID=EQHXZ8M8AV
+    ```
+
+If the build was successful the last line will contain the path to your
+compiled Restor.app.
+
 ## Contributing
 
 Patches to this library are very much welcome. Please see the

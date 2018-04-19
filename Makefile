@@ -5,6 +5,7 @@ else
 endif
 
 NCPUS=$(shell expr $$(sysctl -n hw.ncpu) + 2)
+TEAM_ID=EQHXZ8M8AV
 
 .PHONY: list
 list:
@@ -32,16 +33,19 @@ debug: .prebuild
 
 release: .prebuild
 	@xcodebuild \
+		TEAM_ID=${TEAM_ID} \
+		DEVELOPMENT_TEAM=${TEAM_ID} \
 		-derivedDataPath ${DERIVED_DATA} \
 		-parallelizeTargets -jobs ${NCPUS} \
 		-workspace Restor.xcworkspace \
 		-scheme Restor \
 		-configuration Release \
 		build
+	@printf "\n\nApp Location: ${DERIVED_DATA}/Build/Products/Release/Restor.app\n"
 
 google_release: .prebuild
 	@xcodebuild \
-		TEAM_ID=EQHXZ8M8AV \
+		TEAM_ID=${TEAM_ID} \
 		-derivedDataPath ${DERIVED_DATA} \
 		-parallelizeTargets -jobs ${NCPUS} \
 		-workspace Restor.xcworkspace \
