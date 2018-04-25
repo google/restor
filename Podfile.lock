@@ -2,7 +2,7 @@ PODS:
   - MOLAuthenticatingURLSession (2.4):
     - MOLCertificate (~> 1.8)
   - MOLCertificate (1.8)
-  - MOLCodesignChecker (1.9):
+  - MOLCodesignChecker (1.10):
     - MOLCertificate (~> 1.8)
   - MOLXPCConnection (1.1):
     - MOLCodesignChecker (~> 1.9)
@@ -14,7 +14,7 @@ DEPENDENCIES:
 SPEC CHECKSUMS:
   MOLAuthenticatingURLSession: c238aa1c9a7b1077eb39a6f40204bfe76a7d204e
   MOLCertificate: c999513316d511c69f290fbf313dfe8dca4ad592
-  MOLCodesignChecker: 303c01755646a0045c97f9f0b0fe5945ead42130
+  MOLCodesignChecker: b0d5db9d2f9bd94e0fd093891a5d40e5ad77cbc0
   MOLXPCConnection: de9d5535928f59766a768384e411077b83ec2f9c
 
 PODFILE CHECKSUM: 5cf4b07f7d175476d2cc6f41208074b1933af454
