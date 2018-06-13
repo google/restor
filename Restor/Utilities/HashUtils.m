@@ -14,6 +14,8 @@
 
 #import "HashUtils.h"
 
+#import <CommonCrypto/CommonDigest.h>
+
 // Returns the hexadecimal string representation for an array of bytes.
 // @param bytes is a byte array.
 // @param len is the number of bytes in the array.
@@ -30,6 +32,14 @@ NSString *hexStringFromBytes(unsigned char *bytes, int len) {
   return [NSString stringWithCString:str encoding:NSASCIIStringEncoding];
 }
 
+// Class for computing the SHA-256 checksum of data.
+@interface SHA256Hasher : NSObject<Hasher>
+@end
+
+// Class for computing the SHA-512 checksum of data.
+@interface SHA512Hasher : NSObject<Hasher>
+@end
+
 @implementation SHA256Hasher {
   CC_SHA256_CTX _context;
 }
@@ -42,11 +52,11 @@ NSString *hexStringFromBytes(unsigned char *bytes, int len) {
   return self;
 }
 
-- (void)updateWithBytes:(const char *)bytes length:(CC_LONG)length {
+- (void)updateWithBytes:(const char *)bytes length:(unsigned int)length {
   CC_SHA256_Update(&_context, bytes, length);
 }
 
-- (NSString *)finalize {
+- (NSString *)digest {
   unsigned char md[CC_SHA256_DIGEST_LENGTH];
   CC_SHA256_Final(md, &_context);
   return hexStringFromBytes(md, CC_SHA256_DIGEST_LENGTH);
@@ -66,11 +76,11 @@ NSString *hexStringFromBytes(unsigned char *bytes, int len) {
   return self;
 }
 
-- (void)updateWithBytes:(const char *)bytes length:(CC_LONG)length {
+- (void)updateWithBytes:(const char *)bytes length:(unsigned int)length {
   CC_SHA512_Update(&_context, bytes, length);
 }
 
-- (NSString *)finalize {
+- (NSString *)digest {
   unsigned char md[CC_SHA512_DIGEST_LENGTH];
   CC_SHA512_Final(md, &_context);
   return hexStringFromBytes(md, CC_SHA512_DIGEST_LENGTH);
@@ -82,8 +92,8 @@ NSString *hexStringFromBytes(unsigned char *bytes, int len) {
 
 + (id<Hasher>)hasherForAlgorithm:(HashAlgorithm)algorithm {
   switch (algorithm) {
-    case SHA256: return [[SHA256Hasher alloc] init];
-    case SHA512: return [[SHA512Hasher alloc] init];
+    case HashAlgorithmSHA256: return [[SHA256Hasher alloc] init];
+    case HashAlgorithmSHA512: return [[SHA512Hasher alloc] init];
     default: return nil;
   }
 }
@@ -120,7 +130,7 @@ NSString *hexStringFromBytes(unsigned char *bytes, int len) {
     }
   }
 
-  return [hasher finalize];
+  return [hasher digest];
 }
 
 @end

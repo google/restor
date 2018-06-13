@@ -77,10 +77,10 @@
 
   // Determine which checksum to use, with SHA-512 preferred to SHA-256.
   if (self.requestedImage.sha512) {
-    self.hasher = [HashUtils hasherForAlgorithm:SHA512];
+    self.hasher = [HashUtils hasherForAlgorithm:HashAlgorithmSHA512];
     self.expectedChecksum = self.requestedImage.sha512;
   } else if (self.requestedImage.sha256) {
-    self.hasher = [HashUtils hasherForAlgorithm:SHA256];
+    self.hasher = [HashUtils hasherForAlgorithm:HashAlgorithmSHA256];
     self.expectedChecksum = self.requestedImage.sha256;
   } else {
     self.hasher = nil;
@@ -135,7 +135,7 @@
       __block NSString *downloadSHA;
       if (self.hasher) {
         dispatch_sync(fileQueue, ^{
-          downloadSHA = [self.hasher finalize];
+          downloadSHA = [self.hasher digest];
         });
       }
       if (self.expectedChecksum && ![self.expectedChecksum isEqualToString:downloadSHA]) {

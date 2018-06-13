@@ -44,10 +44,10 @@
         NSString *checksum, *expected;
         if (image.sha512) {
           expected = image.sha512;
-          checksum = [HashUtils checksumForFileURL:url algorithm:SHA512];
+          checksum = [HashUtils checksumForFileURL:url algorithm:HashAlgorithmSHA512];
         } else if (image.sha256) {
           expected = image.sha256;
-          checksum = [HashUtils checksumForFileURL:url algorithm:SHA256];
+          checksum = [HashUtils checksumForFileURL:url algorithm:HashAlgorithmSHA256];
         }
         if (expected && [expected isEqualToString:checksum]) {
           isValid = YES;
