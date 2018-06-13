@@ -14,14 +14,48 @@
 
 @import Foundation;
 
+#import <CommonCrypto/CommonDigest.h>
+
+// List of hashing algorithms that can be used with HashUtils.
+typedef NS_ENUM(NSUInteger, HashAlgorithm) {
+  SHA256,
+  SHA512,
+};
+
+// Protocol for computing hashes incrementally.
+@protocol Hasher
+
+// Call repeatedly with chunks of the message to be hashed.
+// @param bytes is next chunk of data to be hashed.
+// @param length is number of bytes in array.
+- (void)updateWithBytes:(const char *)bytes length:(CC_LONG)length;
+
+// Returns a hexadecimal string representation of the message digest.
+- (NSString *)finalize;
+
+@end
+
+// Class for computing the SHA-256 checksum of data.
+@interface SHA256Hasher : NSObject<Hasher>
+{
+  CC_SHA256_CTX _context;
+}
+@end
+
+// Class for computing the SHA-512 checksum of data.
+@interface SHA512Hasher : NSObject<Hasher>
+{
+  CC_SHA512_CTX _context;
+}
+@end
+
 ///  Utility class for hashing large files on disk.
 @interface HashUtils : NSObject
 
-// Get the SHA-256 hash of a file
-+ (NSString *)SHA256ForFileURL:(NSURL *)url;
+// Returns an object conforming to the Hasher protocol for the given algorithm.
++ (id<Hasher>)hasherForAlgorithm:(HashAlgorithm)algorithm;
 
-// Generate a string representation of a SHA-256 digest.
-// Ensure digest has a length of CC_SHA256_DIGEST_LENGTH.
-+ (NSString *)SHA256ForDigest:(unsigned char *)digest;
+// Get the checksum of a file using the given hash algorithm.
++ (NSString *)checksumForFileURL:(NSURL *)url algorithm:(HashAlgorithm)algorithm;
 
 @end

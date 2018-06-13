@@ -41,11 +41,17 @@
     for (Image *image in self.images) {
       if ([image.name isEqualToString:imageName]) {
         // Validate the image hash
-        NSString *sha256 = [HashUtils SHA256ForFileURL:url];
-        if ([image.sha256 isEqualToString:sha256]) {
+        NSString *checksum, *expected;
+        if (image.sha512) {
+          expected = image.sha512;
+          checksum = [HashUtils checksumForFileURL:url algorithm:SHA512];
+        } else if (image.sha256) {
+          expected = image.sha256;
+          checksum = [HashUtils checksumForFileURL:url algorithm:SHA256];
+        }
+        if (expected && [expected isEqualToString:checksum]) {
           isValid = YES;
         }
-
         break;
       }
     }

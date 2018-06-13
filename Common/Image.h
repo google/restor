@@ -31,6 +31,9 @@
 /// The SHA-256 hash of this image
 @property(readonly, nonatomic) NSString *sha256;
 
+/// The SHA-512 hash of this image
+@property(readonly, nonatomic) NSString *sha512;
+
 /// The URL of the image on disk, if it exists
 @property NSURL *localURL;
 
