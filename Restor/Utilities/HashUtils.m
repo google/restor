@@ -30,7 +30,9 @@ NSString *hexStringFromBytes(unsigned char *bytes, int len) {
   return [NSString stringWithCString:str encoding:NSASCIIStringEncoding];
 }
 
-@implementation SHA256Hasher
+@implementation SHA256Hasher {
+  CC_SHA256_CTX _context;
+}
 
 - (instancetype)init {
   self = [super init];
@@ -52,7 +54,9 @@ NSString *hexStringFromBytes(unsigned char *bytes, int len) {
 
 @end
 
-@implementation SHA512Hasher
+@implementation SHA512Hasher {
+  CC_SHA512_CTX _context;
+}
 
 - (instancetype)init {
   self = [super init];

@@ -37,16 +37,10 @@ typedef NS_ENUM(NSUInteger, HashAlgorithm) {
 
 // Class for computing the SHA-256 checksum of data.
 @interface SHA256Hasher : NSObject<Hasher>
-{
-  CC_SHA256_CTX _context;
-}
 @end
 
 // Class for computing the SHA-512 checksum of data.
 @interface SHA512Hasher : NSObject<Hasher>
-{
-  CC_SHA512_CTX _context;
-}
 @end
 
 ///  Utility class for hashing large files on disk.
