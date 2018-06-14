@@ -25,6 +25,7 @@
       _URL = [NSURL fileURLWithPath:dict[@"URL"]];
     }
     _sha256 = dict[@"SHA-256"];
+    _sha512 = dict[@"SHA-512"];
   }
   return self;
 }
@@ -35,6 +36,7 @@
   [coder encodeObject:self.name forKey:@"name"];
   [coder encodeObject:self.URL forKey:@"URL"];
   [coder encodeObject:self.sha256 forKey:@"sha256"];
+  [coder encodeObject:self.sha512 forKey:@"sha512"];
   [coder encodeObject:self.localURL forKey:@"localURL"];
 }
 
@@ -44,6 +46,7 @@
     _name = [decoder decodeObjectOfClass:[NSString class] forKey:@"name"];
     _URL = [decoder decodeObjectOfClass:[NSURL class] forKey:@"URL"];
     _sha256 = [decoder decodeObjectOfClass:[NSString class] forKey:@"sha256"];
+    _sha512 = [decoder decodeObjectOfClass:[NSString class] forKey:@"sha512"];
     _localURL = [decoder decodeObjectOfClass:[NSURL class] forKey:@"localURL"];
   }
   return self;

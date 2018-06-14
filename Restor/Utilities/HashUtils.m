@@ -16,24 +16,89 @@
 
 #import <CommonCrypto/CommonDigest.h>
 
-@implementation HashUtils
-
-+ (NSString *)SHA256ForDigest:(unsigned char *)digest {
-  NSString *const SHA256FormatString =
-      @"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x"
-      "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x";
-
-  return [[NSString alloc] initWithFormat:SHA256FormatString,
-             digest[0], digest[1], digest[2], digest[3], digest[4],
-             digest[5], digest[6], digest[7], digest[8], digest[9],
-             digest[10], digest[11], digest[12], digest[13], digest[14],
-             digest[15], digest[16], digest[17], digest[18], digest[19],
-             digest[20], digest[21], digest[22], digest[23], digest[24],
-             digest[25], digest[26], digest[27], digest[28], digest[29],
-             digest[30], digest[31]];
+// Returns the hexadecimal string representation for an array of bytes.
+// @param bytes is a byte array.
+// @param len is the number of bytes in the array.
+NSString *hexStringFromBytes(unsigned char *bytes, int len) {
+  const char *digits = "0123456789abcdef";
+  char str[2*len + 1];
+  int slen = 0;
+  for (int i = 0; i < len; i++) {
+    unsigned char b = bytes[i];
+    str[slen++] = digits[b >> 4];
+    str[slen++] = digits[b & 0xf];
+  }
+  str[slen] = 0;
+  return [NSString stringWithCString:str encoding:NSASCIIStringEncoding];
 }
 
-+ (NSString *)SHA256ForFileURL:(NSURL *)url {
+// Class for computing the SHA-256 checksum of data.
+@interface SHA256Hasher : NSObject<Hasher>
+@end
+
+// Class for computing the SHA-512 checksum of data.
+@interface SHA512Hasher : NSObject<Hasher>
+@end
+
+@implementation SHA256Hasher {
+  CC_SHA256_CTX _context;
+}
+
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    CC_SHA256_Init(&_context);
+  }
+  return self;
+}
+
+- (void)updateWithBytes:(const char *)bytes length:(unsigned int)length {
+  CC_SHA256_Update(&_context, bytes, length);
+}
+
+- (NSString *)digest {
+  unsigned char md[CC_SHA256_DIGEST_LENGTH];
+  CC_SHA256_Final(md, &_context);
+  return hexStringFromBytes(md, CC_SHA256_DIGEST_LENGTH);
+}
+
+@end
+
+@implementation SHA512Hasher {
+  CC_SHA512_CTX _context;
+}
+
+- (instancetype)init {
+  self = [super init];
+  if (self) {
+    CC_SHA512_Init(&_context);
+  }
+  return self;
+}
+
+- (void)updateWithBytes:(const char *)bytes length:(unsigned int)length {
+  CC_SHA512_Update(&_context, bytes, length);
+}
+
+- (NSString *)digest {
+  unsigned char md[CC_SHA512_DIGEST_LENGTH];
+  CC_SHA512_Final(md, &_context);
+  return hexStringFromBytes(md, CC_SHA512_DIGEST_LENGTH);
+}
+
+@end
+
+@implementation HashUtils
+
++ (id<Hasher>)hasherForAlgorithm:(HashAlgorithm)algorithm {
+  switch (algorithm) {
+    case HashAlgorithmSHA256: return [[SHA256Hasher alloc] init];
+    case HashAlgorithmSHA512: return [[SHA512Hasher alloc] init];
+    default: return nil;
+  }
+}
+
++ (NSString *)checksumForFileURL:(NSURL *)url algorithm:(HashAlgorithm)algorithm {
   // Open file
   NSFileHandle *fh = [NSFileHandle fileHandleForReadingAtPath:url.path];
   int fd = fh.fileDescriptor;
@@ -48,15 +113,15 @@
   const size_t chunkSize = fileSize > MAX_CHUNK_SIZE ? MAX_CHUNK_SIZE : fileSize;
   char chunk[chunkSize];
 
-  CC_SHA256_CTX c256;
-  CC_SHA256_Init(&c256);
+  id<Hasher> hasher = [self hasherForAlgorithm:algorithm];
+  if (!hasher) return nil;
 
   // Update the hash in chunks
   ssize_t bytesRead;
   for (uint64_t offset = 0; offset < fileSize;) {
     bytesRead = pread(fd, chunk, chunkSize, offset);
     if (bytesRead > 0) {
-      CC_SHA256_Update(&c256, chunk, (CC_LONG)bytesRead);
+      [hasher updateWithBytes:chunk length:(CC_LONG)bytesRead];
       offset += bytesRead;
     } else if (bytesRead == -1 && errno == EINTR) {
       continue;
@@ -65,10 +130,7 @@
     }
   }
 
-  unsigned char digest[CC_SHA256_DIGEST_LENGTH];
-  CC_SHA256_Final(digest, &c256);
-
-  return [self SHA256ForDigest:digest];
+  return [hasher digest];
 }
 
 @end

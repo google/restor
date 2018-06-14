@@ -429,7 +429,7 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
   imageInfo[@"ImageEndTime"] = imageEndTime;
 
   imageInfo[@"ImageURL"] = self.image.URL.absoluteString;
-  imageInfo[@"ImageHash"] = self.image.sha256;
+  imageInfo[@"ImageHash"] = self.image.sha512 ?: self.image.sha256;
   imageInfo[@"Imager"] = @"Restor.app";
   imageInfo[@"ImagerVersion"] =
       [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
