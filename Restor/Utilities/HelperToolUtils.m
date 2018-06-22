@@ -111,7 +111,8 @@ static NSString *const kHelperToolLabel = @"com.google.corp.restord";
   if (status != errAuthorizationSuccess) {
     if (error) {
       *error = [ErrorMaker errorWithCode:76
-                                  string:@"Unable to authenticate to install helper tool"];
+                             description:@"Failed to install helper tool"
+                                  reason:@"Unable to authenticate to install helper tool"];
     }
     return NO;
   }

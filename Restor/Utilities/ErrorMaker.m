@@ -16,8 +16,11 @@
 
 @implementation ErrorMaker
 
-+ (NSError *)errorWithCode:(NSInteger)code string:(NSString *)string {
-  NSDictionary *userInfo = @{ NSLocalizedDescriptionKey: string };
++ (NSError *)errorWithCode:(NSInteger)code
+               description:(NSString *)description
+                    reason:(NSString *)reason {
+  NSDictionary *userInfo = @{ NSLocalizedDescriptionKey: NSLocalizedString(description, nil),
+                              NSLocalizedFailureReasonErrorKey: NSLocalizedString(reason, nil) };
   return [NSError errorWithDomain:@"com.google.corp.restor" code:code userInfo:userInfo];
 }
 

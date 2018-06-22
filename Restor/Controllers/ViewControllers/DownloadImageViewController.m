@@ -31,8 +31,6 @@
 @property NSTimeInterval startTime;
 @property uint64_t startBytes;
 @property NSTimer *progressTimer;
-@property id<Hasher> hasher;
-@property NSString *expectedChecksum;
 @end
 
 @implementation DownloadImageViewController
@@ -74,17 +72,19 @@
                                                      DISPATCH_QUEUE_SERIAL);
 
   __block int64_t receivedPercent = 0;
+  __block id<Hasher> hasher;
+  __block NSString *expectedChecksum;
 
   // Determine which checksum to use, with SHA-512 preferred to SHA-256.
   if (self.requestedImage.sha512) {
-    self.hasher = [HashUtils hasherForAlgorithm:HashAlgorithmSHA512];
-    self.expectedChecksum = self.requestedImage.sha512;
+    hasher = [HashUtils hasherForAlgorithm:HashAlgorithmSHA512];
+    expectedChecksum = self.requestedImage.sha512;
   } else if (self.requestedImage.sha256) {
-    self.hasher = [HashUtils hasherForAlgorithm:HashAlgorithmSHA256];
-    self.expectedChecksum = self.requestedImage.sha256;
+    hasher = [HashUtils hasherForAlgorithm:HashAlgorithmSHA256];
+    expectedChecksum = self.requestedImage.sha256;
   } else {
-    self.hasher = nil;
-    self.expectedChecksum = nil;
+    hasher = nil;
+    expectedChecksum = nil;
   }
 
   MOLAuthenticatingURLSession *authSession = [[MOLAuthenticatingURLSession alloc] init];
@@ -93,7 +93,7 @@
   authSession.dataTaskDidReceiveDataBlock = ^(NSURLSession *s, NSURLSessionDataTask *t, NSData *d) {
     STRONGIFY(self);
     dispatch_async(fileQueue, ^{
-      if (self.hasher) [self.hasher updateWithBytes:d.bytes length:(CC_LONG)d.length];
+      if (hasher) [hasher updateWithBytes:d.bytes length:(CC_LONG)d.length];
       [download writeData:d];
     });
 
@@ -133,12 +133,12 @@
       [self displayErrorWithFormat:text];
     } else {
       __block NSString *downloadSHA;
-      if (self.hasher) {
+      if (hasher) {
         dispatch_sync(fileQueue, ^{
-          downloadSHA = [self.hasher digest];
+          downloadSHA = [hasher digest];
         });
       }
-      if (self.expectedChecksum && ![self.expectedChecksum isEqualToString:downloadSHA]) {
+      if (expectedChecksum && ![expectedChecksum isEqualToString:downloadSHA]) {
         [fm removeItemAtPath:downloadPath error:NULL];
         [self displayErrorWithFormat:@"Downloaded image does not match requested image."];
         return;

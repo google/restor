@@ -14,17 +14,16 @@
 
 @import Cocoa;
 
-@class ImageCacheController;
+@class ConfigController;
 @class MOLXPCConnection;
 
-///  MainViewController mananges the main window containing the collection view,
-///  image selection and image/auto-image buttons.
+/// MainViewController mananges the main window containing the collection view,
+/// image selection and image/auto-image buttons.
 @interface MainViewController : NSViewController <NSCollectionViewDelegate,
                                                   NSCollectionViewDataSource>
 
-@property(nonatomic) ImageCacheController *imageCacheController;
-@property(nonatomic) NSURLSession *URLSession;
-@property(nonatomic) MOLXPCConnection *helperConnection;
+/// The configController stores images specified in a configuration plist.
+@property(nonatomic) ConfigController *configController;
 
 - (IBAction)downloadImage:(id)sender;
 - (IBAction)showCachedImageInFinder:(id)sender;

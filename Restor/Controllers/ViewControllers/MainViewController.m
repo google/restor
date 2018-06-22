@@ -19,13 +19,12 @@
 #import "AutoImageWarningViewController.h"
 #import "CollectionViewItemAvailable.h"
 #import "CollectionViewItemImaging.h"
-#import "ConfigViewController.h"
+#import "ConfigController.h"
 #import "CustomImageViewController.h"
 #import "Disk.h"
 #import "DiskWatcher.h"
 #import "DiskFilter.h"
 #import "DownloadImageViewController.h"
-#import "ImageCacheController.h"
 #import "ImagingSession.h"
 #import "Image.h"
 
@@ -57,7 +56,7 @@
 }
 
 - (void)viewDidAppear {
-  self.selectedImage = self.imageCacheController.images.firstObject;
+  self.selectedImage = self.configController.images.firstObject;
   [self selectedImageDidChange:self];
 }
 
@@ -107,13 +106,13 @@
 
 // Hide/show the cached button or download button whenever the selected image changes.
 - (IBAction)selectedImageDidChange:(id)sender {
-  if ([self.selectedImage.name isEqualToString:@"Custom Image"]) {
+  if (!self.selectedImage || [self.selectedImage.name isEqualToString:@"Custom Image"]) {
     self.showCachedCheckmark = NO;
     self.showDownloadButton = NO;
   } else {
     if (!self.selectedImage.localURL) {
       self.selectedImage.localURL =
-          [self.imageCacheController localPathForImage:self.selectedImage];
+          [self.configController localPathForImage:self.selectedImage];
     }
     if ([self.selectedImage.localURL checkResourceIsReachableAndReturnError:NULL]) {
       self.showCachedCheckmark = YES;
@@ -133,6 +132,20 @@
   if ([self.selectedImage.name isEqualToString:@"Custom Image"]) {
     [self showCustomImageView];
   } else {
+    // Check the config for changes before each image session, to avoid using outdated images.
+    NSError *error = [self.configController checkConfiguration];
+    if (error) {
+      [self showAlertWithText:error.localizedDescription detail:error.localizedFailureReason];
+      return;
+    }
+    // But the new config may have removed the selected image from the list.
+    if (![self.configController.images containsObject:self.selectedImage]) {
+      [self showAlertWithText:@"The selected image was expired"
+                       detail:@"Please select a new image."];
+      self.selectedImage = self.configController.images.firstObject;
+      [self selectedImageDidChange:self];
+      return;
+    }
     [self downloadIfNeededWithCompletionBlock:^{
       [self imageAllSelectedDisks];
     }];
@@ -154,7 +167,7 @@
 
 - (IBAction)showCachedImageInFinder:(id)sender {
   if (!self.selectedImage.localURL) {
-    self.selectedImage.localURL = [self.imageCacheController localPathForImage:self.selectedImage];
+    self.selectedImage.localURL = [self.configController localPathForImage:self.selectedImage];
   }
   [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[self.selectedImage.localURL]];
 }
@@ -192,7 +205,7 @@
 // the cache, then just immediately executes the completion block.
 - (void)downloadIfNeededWithCompletionBlock:(nullable void (^)(void))block {
   if (!self.selectedImage.localURL) {
-    self.selectedImage.localURL = [self.imageCacheController localPathForImage:self.selectedImage];
+    self.selectedImage.localURL = [self.configController localPathForImage:self.selectedImage];
   }
   if (![self.selectedImage.localURL checkResourceIsReachableAndReturnError:NULL]) {
     [self showDownloadImageViewWithCompletionBlock:block];
@@ -214,7 +227,8 @@
 - (void)imageDisk:(Disk *)disk {
   ImagingSession *is = [[ImagingSession alloc] initWithImage:self.selectedImage
                                                   targetDisk:disk
-                                            helperConnection:self.helperConnection];
+                                            helperConnection:self.configController.helperConnection];
+
   self.imagingSessions[disk.bsdName] = is;
 
   dispatch_async(dispatch_get_main_queue(), ^{
@@ -288,6 +302,17 @@
   };
 
   [self presentViewControllerAsSheet:vc];
+}
+
+// Display an alert as a modal sheet with the specified text.
+- (void)showAlertWithText:(NSString *)text detail:(NSString *)detail {
+  NSAlert *alert = [[NSAlert alloc] init];
+  alert.alertStyle = NSAlertStyleCritical;
+  alert.messageText = text;
+  alert.informativeText = detail;
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [alert beginSheetModalForWindow:self.view.window completionHandler:nil];
+  });
 }
 
 @end

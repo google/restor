@@ -15,25 +15,30 @@
 @import Foundation;
 
 @class Image;
+@class MOLXPCConnection;
 
-///  ImageCacheController is responsible for managing the local cache of images, ensuring
-///  that old or invalid images are deleted.
-@interface ImageCacheController : NSObject
+// ConfigController parses a configuration plist, storing an array of image objects, verifying
+// the download state of images and deleting previously downloaded images that no longer exist.
+@interface ConfigController : NSObject
 
-// Initialize with an array of images
-- (instancetype)initWithImages:(NSArray<Image *> *)images NS_DESIGNATED_INITIALIZER;
+// List of images found in the config file.
+@property(readonly) NSArray<Image *> *images;
 
-- (instancetype)init NS_UNAVAILABLE;
+// Connection to the helper tool.
+@property(readonly, nonatomic) MOLXPCConnection *helperConnection;
+
+// Download & parse config and validate image cache.
+- (NSError *)checkConfiguration;
+
+// Connects to the helper tool, setting helperConnection property.
+- (NSError *)connectToHelperTool;
 
 // Validates that the images stored on disk still exist in the image array provided at
 // initialization and that their hashes match. This might take a while as it involves
 // enumerating files on disk and hashing them.
 - (void)validateImageCache;
 
+// Returns the local filepath where a previously downloaded image would be located.
 - (NSURL *)localPathForImage:(Image *)image;
-
-// The array of images that was supplied at init.
-@property(readonly) NSArray<Image *> *images;
-
 
 @end

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="0Ft-3G-S3r">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="0Ft-3G-S3r">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14109"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
         <capability name="system font weights other than Regular or Bold" minToolsVersion="7.0"/>
     </dependencies>
@@ -171,18 +171,18 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                                 <connections>
-                                    <binding destination="3AT-TD-MnR" name="value" keyPath="self.loadingField" id="SLv-jw-3gi"/>
+                                    <binding destination="3AT-TD-MnR" name="value" keyPath="self.statusText" id="LrC-HO-tCq"/>
                                 </connections>
                             </textField>
                             <progressIndicator wantsLayer="YES" maxValue="100" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="etC-Hw-gmU">
                                 <rect key="frame" x="86" y="177" width="428" height="32"/>
                                 <connections>
-                                    <binding destination="3AT-TD-MnR" name="animate" keyPath="self" id="ENB-El-2RY">
+                                    <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="ES6-cY-kxW">
                                         <dictionary key="options">
                                             <string key="NSValueTransformerName">NSIsNotNil</string>
                                         </dictionary>
                                     </binding>
-                                    <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="Mzg-No-10E">
+                                    <binding destination="3AT-TD-MnR" name="animate" keyPath="self" id="ENB-El-2RY">
                                         <dictionary key="options">
                                             <string key="NSValueTransformerName">NSIsNotNil</string>
                                         </dictionary>
@@ -194,7 +194,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" animates="YES" imageScaling="proportionallyUpOrDown" image="NSCaution" id="R4X-g3-Sh9"/>
                                 <connections>
-                                    <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="OXM-w2-OF3">
+                                    <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="D4M-rY-yrG">
                                         <dictionary key="options">
                                             <string key="NSValueTransformerName">NSIsNil</string>
                                         </dictionary>
@@ -210,7 +210,7 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                                 <connections>
-                                    <binding destination="3AT-TD-MnR" name="value" keyPath="self.error.localizedDescription" id="3F0-lT-pXb"/>
+                                    <binding destination="3AT-TD-MnR" name="value" keyPath="self.error.localizedFailureReason" id="DYT-P2-OV5"/>
                                 </connections>
                             </textField>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6Ds-H8-Y0n">
@@ -227,7 +227,7 @@ DQ
                                 </buttonCell>
                                 <connections>
                                     <action selector="attemptConfiguration:" target="3AT-TD-MnR" id="jY1-r0-tim"/>
-                                    <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="saI-oN-yFc">
+                                    <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="qHc-JT-Qb2">
                                         <dictionary key="options">
                                             <string key="NSValueTransformerName">NSIsNil</string>
                                         </dictionary>
@@ -245,7 +245,7 @@ DQ
                                 </buttonCell>
                                 <connections>
                                     <action selector="terminate:" target="axV-hC-CfI" id="cVp-FE-6MZ"/>
-                                    <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="Egh-El-WXW">
+                                    <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="0lq-EA-W1A">
                                         <dictionary key="options">
                                             <string key="NSValueTransformerName">NSIsNil</string>
                                         </dictionary>
@@ -710,7 +710,7 @@ Gw
                         <string>imageURL</string>
                     </declaredKeys>
                     <connections>
-                        <binding destination="2DG-up-bcd" name="contentArray" keyPath="self.imageCacheController.images" id="y2Y-9D-0qt"/>
+                        <binding destination="2DG-up-bcd" name="contentArray" keyPath="self.configController.images" id="vRF-5Y-XeI"/>
                     </connections>
                 </arrayController>
                 <userDefaultsController id="oTT-lL-WJa"/>

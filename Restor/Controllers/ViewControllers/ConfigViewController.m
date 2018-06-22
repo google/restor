@@ -16,23 +16,16 @@
 
 #import <MOLAuthenticatingURLSession/MOLAuthenticatingURLSession.h>
 
-#import "ErrorMaker.h"
-#import "HelperToolUtils.h"
-#import "Image.h"
-#import "ImageCacheController.h"
+#import "ConfigController.h"
 #import "MainViewController.h"
-
-static NSString *kPreferenceDomain = @"com.google.corp.restor";
-static NSString *kConfigURLKey = @"ConfigURL";
-static NSString *kCustomImageKey = @"CustomImage";
-
 
 @class MOLXPCConnection;
 
 @interface ConfigViewController ()
-@property NSMutableArray<Image *> *images;
+// configController is used to do the actual configuration.  It is passed on to MainViewController.
+@property ConfigController *configController;
 @property NSError *error;
-@property NSString *loadingField;
+@property NSString *statusText;
 @end
 
 @implementation ConfigViewController
@@ -40,8 +33,8 @@ static NSString *kCustomImageKey = @"CustomImage";
 - (void)viewDidAppear {
   [super viewDidAppear];
 
-  if (!self.session) {
-    self.session = [[[MOLAuthenticatingURLSession alloc] init] session];
+  if (!self.configController) {
+    self.configController = [[ConfigController alloc] init];
   }
 
   [self attemptConfiguration:self];
@@ -50,156 +43,47 @@ static NSString *kCustomImageKey = @"CustomImage";
 - (IBAction)attemptConfiguration:(id)sender {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
     NSError *error;
+    [self setVisibleError:nil];  // reset any previously displayed error
 
-    NSURL *u = [NSURL URLWithString:[self stringPreferenceForKey:kConfigURLKey]];
-    NSData *configData = [self downloadConfigFromURL:u error:&error];
-    if ([self showError:error withHeader:@"Failed to download configuration"]) return;
+    [self setStatus:@"Downloading configuration..."];
+    error = [self.configController checkConfiguration];
+    if (error) {
+      [self setVisibleError:error];
+      return;
+    }
 
-    NSDictionary *configDict =
-        [NSPropertyListSerialization propertyListWithData:configData
-                                                  options:NSPropertyListImmutable
-                                                   format:NULL
-                                                    error:&error];
-    if ([self showError:error
-             withHeader:NSLocalizedString(@"Failed to parse configuration", nil)]) return;
+    [self setStatus:@"Connecting to helper tool..."];
+    error = [self.configController connectToHelperTool];
+    if (error) {
+      [self setVisibleError:error];
+      return;
+    }
 
-    error = [self parseConfig:configDict];
-    if ([self showError:error
-             withHeader:NSLocalizedString(@"Failed to parse configuration", nil)]) return;
-
-    MOLXPCConnection *helperConnection = [self connectToHelperToolWithError:&error];
-    if ([self showError:error
-             withHeader:NSLocalizedString(@"Failed to connect to helper tool", nil)]) return;
-
-    [self validateImageCache];
+    [self setStatus:@"Validating image cache..."];
+    [self.configController validateImageCache];
 
     dispatch_async(dispatch_get_main_queue(), ^{
       NSTabViewController *tvc = (NSTabViewController *)self.parentViewController;
       NSInteger nextIndex = tvc.selectedTabViewItemIndex + 1;
       MainViewController *nextView =
-          (MainViewController *)[tvc.childViewControllers objectAtIndex:nextIndex];
-
-      nextView.URLSession = self.session;
-      nextView.imageCacheController = self.imageCacheController;
-      nextView.helperConnection = helperConnection;
-
+      (MainViewController *)[tvc.childViewControllers objectAtIndex:nextIndex];
+      nextView.configController = self.configController;
       tvc.selectedTabViewItemIndex = nextIndex;
     });
   });
 }
 
-- (NSError *)parseConfig:(NSDictionary *)d {
-  self.images = [NSMutableArray array];
-
-  for (id o in d[@"Images"]) {
-    if (![o isKindOfClass:[NSDictionary class]]) {
-      NSLog(@"Parsing config file, found non-dictionary in Images array.");
-      continue;
-    }
-    Image *image = [[Image alloc] initWithDictionary:(NSDictionary *)o];
-    if ([image.name isEqualToString:@"Custom Image"]) continue;
-    [self.images addObject:image];
-  }
-
-  if ([self boolPreferenceForKey:kCustomImageKey]) {
-    NSDictionary *d = @{
-      @"Name" : @"Custom Image",
-      @"URL" : @"/"
-    };
-    Image *ci = [[Image alloc] initWithDictionary:d];
-    [self.images addObject:ci];
-  }
-
-  if (!self.images.count) {
-    return [ErrorMaker errorWithCode:17
-                              string:NSLocalizedString(@"No images found in configuration", nil)];
-  }
-
-  return nil;
-}
-
-- (NSData *)downloadConfigFromURL:(NSURL *)configURL error:(NSError **)outError {
+- (void)setStatus:(NSString *)status {
   dispatch_async(dispatch_get_main_queue(), ^{
-    self.loadingField = NSLocalizedString(@"Downloading configuration...", nil);
+    self.statusText = NSLocalizedString(status, nil);
   });
-
-  __block NSData *configData;
-  __block NSError *error;
-
-  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-
-  [[self.session dataTaskWithURL:configURL completionHandler:^(NSData *data,
-                                                               NSURLResponse *response,
-                                                               NSError *e) {
-    if (e) {
-      error = e;
-      dispatch_semaphore_signal(sema);
-      return;
-    }
-    NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-    if (statusCode != 200 || !data) {
-      NSString *errorStr = [NSString stringWithFormat:@"HTTP Error: %ld", statusCode];
-      error = [ErrorMaker errorWithCode:18 string:errorStr];
-      dispatch_semaphore_signal(sema);
-      return;
-    }
-    configData = data;
-    dispatch_semaphore_signal(sema);
-  }] resume];
-
-  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC))) {
-    error = [ErrorMaker errorWithCode:19 string:@"Timed out while downloading config"];
-  }
-
-  if (outError) *outError = error;
-
-  return configData;
 }
 
-- (void)validateImageCache {
+- (void)setVisibleError:(NSError *)error {
   dispatch_async(dispatch_get_main_queue(), ^{
-    self.loadingField = @"Validating image cache...";
-  });
-
-  _imageCacheController = [[ImageCacheController alloc] initWithImages:self.images];
-  [_imageCacheController validateImageCache];
-}
-
-- (MOLXPCConnection *)connectToHelperToolWithError:(NSError **)error {
-  dispatch_async(dispatch_get_main_queue(), ^{
-    self.loadingField = @"Connecting to helper tool...";
-  });
-
-  return [HelperToolUtils connectToHelperToolWithError:error];
-}
-
-- (BOOL)showError:(NSError *)error withHeader:(NSString *)header {
-  dispatch_async(dispatch_get_main_queue(), ^{
-    self.loadingField = header;
+    self.statusText = error.localizedDescription;
     self.error = error;
   });
-  return error != nil;
-}
-
-- (id)preferenceForKey:(NSString *)key {
-  static NSUserDefaults *defaults;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    defaults = [[NSUserDefaults alloc] initWithSuiteName:kPreferenceDomain];
-  });
-  return [defaults valueForKey:key];
-}
-
-- (NSString *)stringPreferenceForKey:(NSString *)key {
-  id value = [self preferenceForKey:key];
-  if (![value isKindOfClass:[NSString class]]) return nil;
-  return value;
-}
-
-- (BOOL)boolPreferenceForKey:(NSString *)key {
-  id value = [self preferenceForKey:key];
-  if (![value isKindOfClass:[NSNumber class]]) return NO;
-  return [value boolValue];
 }
 
 @end

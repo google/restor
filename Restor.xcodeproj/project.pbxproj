@@ -12,7 +12,6 @@
 		0D25AFD51E53636000B956A1 /* AutoImageWarningViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D25AFD41E53636000B956A1 /* AutoImageWarningViewController.m */; };
 		0D3AC19F1E4B82CA00915058 /* ImageNamedValueTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D3AC19E1E4B82CA00915058 /* ImageNamedValueTransformer.m */; };
 		0D3AC1A31E4BA81700915058 /* HelperToolUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D3AC1A21E4BA81700915058 /* HelperToolUtils.m */; };
-		0D3AC1A91E4E380100915058 /* ImageCacheController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D3AC1A81E4E380100915058 /* ImageCacheController.m */; };
 		0D3FEE471E48EFB100DCFDC3 /* App.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0D3FEE461E48EFB100DCFDC3 /* App.storyboard */; };
 		0D3FEE4A1E4911B900DCFDC3 /* DiskFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D3FEE491E4911B900DCFDC3 /* DiskFilter.m */; };
 		0D3FEE4D1E49233300DCFDC3 /* Image.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D3FEE4C1E49233300DCFDC3 /* Image.m */; };
@@ -35,6 +34,7 @@
 		0DE120A21DF7623A00ABAC7E /* ImageSessionServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0DE1209E1DF74F2400ABAC7E /* ImageSessionServer.m */; };
 		0DE120A51DFF442700ABAC7E /* DiskWatcher.m in Sources */ = {isa = PBXBuildFile; fileRef = 0DE120A41DFF442700ABAC7E /* DiskWatcher.m */; };
 		2B721456F13F9F57D1889EE9 /* libPods-com.google.corp.restord.a in Frameworks */ = {isa = PBXBuildFile; fileRef = EAF22E67F8147AAD5235F059 /* libPods-com.google.corp.restord.a */; };
+		8116002720DD945D00001B5F /* ConfigController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8116002520DD945D00001B5F /* ConfigController.m */; };
 		C75650DD1F4E0B040050CBB5 /* Disk.m in Sources */ = {isa = PBXBuildFile; fileRef = C75650DC1F4E0B040050CBB5 /* Disk.m */; };
 		C75650DE1F4E0B040050CBB5 /* Disk.m in Sources */ = {isa = PBXBuildFile; fileRef = C75650DC1F4E0B040050CBB5 /* Disk.m */; };
 		EFFBF3225B87F976D3570D04 /* libPods-Restor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2AFE1A824DFA82A69F94E449 /* libPods-Restor.a */; };
@@ -83,8 +83,6 @@
 		0D3AC19E1E4B82CA00915058 /* ImageNamedValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageNamedValueTransformer.m; sourceTree = "<group>"; };
 		0D3AC1A11E4BA81700915058 /* HelperToolUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelperToolUtils.h; sourceTree = "<group>"; };
 		0D3AC1A21E4BA81700915058 /* HelperToolUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelperToolUtils.m; sourceTree = "<group>"; };
-		0D3AC1A71E4E380100915058 /* ImageCacheController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageCacheController.h; sourceTree = "<group>"; };
-		0D3AC1A81E4E380100915058 /* ImageCacheController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageCacheController.m; sourceTree = "<group>"; };
 		0D3FEE461E48EFB100DCFDC3 /* App.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = App.storyboard; sourceTree = "<group>"; };
 		0D3FEE481E4911B900DCFDC3 /* DiskFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiskFilter.h; sourceTree = "<group>"; };
 		0D3FEE491E4911B900DCFDC3 /* DiskFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DiskFilter.m; sourceTree = "<group>"; };
@@ -125,6 +123,8 @@
 		0DE120A41DFF442700ABAC7E /* DiskWatcher.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DiskWatcher.m; sourceTree = "<group>"; };
 		2AFE1A824DFA82A69F94E449 /* libPods-Restor.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Restor.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A57A1F572C5ABB2366BCCCF /* Pods-com.google.corp.restord.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-com.google.corp.restord.debug.xcconfig"; path = "Pods/Target Support Files/Pods-com.google.corp.restord/Pods-com.google.corp.restord.debug.xcconfig"; sourceTree = "<group>"; };
+		8116002520DD945D00001B5F /* ConfigController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConfigController.m; sourceTree = "<group>"; };
+		8116002620DD945D00001B5F /* ConfigController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigController.h; sourceTree = "<group>"; };
 		911AC8F7C80987FC0E680EAD /* Pods-Restor.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Restor.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Restor/Pods-Restor.debug.xcconfig"; sourceTree = "<group>"; };
 		BA19C924AFADB0DE6B618DEA /* Pods-Restor.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Restor.release.xcconfig"; path = "Pods/Target Support Files/Pods-Restor/Pods-Restor.release.xcconfig"; sourceTree = "<group>"; };
 		C75650DB1F4E0B040050CBB5 /* Disk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Disk.h; sourceTree = "<group>"; };
@@ -156,8 +156,8 @@
 		0D10764A1E48DD5D00336837 /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				0D3AC1A71E4E380100915058 /* ImageCacheController.h */,
-				0D3AC1A81E4E380100915058 /* ImageCacheController.m */,
+				8116002620DD945D00001B5F /* ConfigController.h */,
+				8116002520DD945D00001B5F /* ConfigController.m */,
 				0D7F80C61E4D124C004710F3 /* ImagingSession.h */,
 				0D7F80C71E4D124C004710F3 /* ImagingSession.m */,
 			);
@@ -542,12 +542,12 @@
 				0D7F80CC1E50FD5C004710F3 /* ConfigViewController.m in Sources */,
 				0D3FEE4A1E4911B900DCFDC3 /* DiskFilter.m in Sources */,
 				0DBB469F1E5E00EA001ABE71 /* ErrorMaker.m in Sources */,
+				8116002720DD945D00001B5F /* ConfigController.m in Sources */,
 				0D3AC1A31E4BA81700915058 /* HelperToolUtils.m in Sources */,
 				0D25AFD51E53636000B956A1 /* AutoImageWarningViewController.m in Sources */,
 				0D1076551E48E5B300336837 /* CollectionViewItemAvailable.m in Sources */,
 				0D7F80C81E4D124C004710F3 /* ImagingSession.m in Sources */,
 				0DE120441DF5D13300ABAC7E /* main.m in Sources */,
-				0D3AC1A91E4E380100915058 /* ImageCacheController.m in Sources */,
 				0D7F80C41E4D07B3004710F3 /* DownloadImageViewController.m in Sources */,
 				0D7F80CF1E5104FA004710F3 /* HashUtils.m in Sources */,
 				0DE120411DF5D13300ABAC7E /* AppDelegate.m in Sources */,
