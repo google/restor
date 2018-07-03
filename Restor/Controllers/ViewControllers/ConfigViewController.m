@@ -42,11 +42,10 @@
 
 - (IBAction)attemptConfiguration:(id)sender {
   dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-    NSError *error;
     [self setVisibleError:nil];  // reset any previously displayed error
 
     [self setStatus:@"Downloading configuration..."];
-    error = [self.configController checkConfiguration];
+    NSError *error = [self.configController checkConfiguration];
     if (error) {
       [self setVisibleError:error];
       return;
@@ -65,8 +64,7 @@
     dispatch_async(dispatch_get_main_queue(), ^{
       NSTabViewController *tvc = (NSTabViewController *)self.parentViewController;
       NSInteger nextIndex = tvc.selectedTabViewItemIndex + 1;
-      MainViewController *nextView =
-      (MainViewController *)[tvc.childViewControllers objectAtIndex:nextIndex];
+      MainViewController *nextView = [tvc.childViewControllers objectAtIndex:nextIndex];
       nextView.configController = self.configController;
       tvc.selectedTabViewItemIndex = nextIndex;
     });

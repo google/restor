@@ -28,6 +28,9 @@
 #import "ImagingSession.h"
 #import "Image.h"
 
+// How long to wait in between config checks.
+static const int kConfigCheckInterval = 15 * 60;
+
 @interface MainViewController ()
 
 @property IBOutlet NSCollectionView *collectionView;
@@ -41,6 +44,7 @@
 @property BOOL autoImageMode;
 @property BOOL showCachedCheckmark;
 @property BOOL showDownloadButton;
+@property NSDate* lastConfigCheck;
 
 - (IBAction)selectedImageDidChange:(id)sender;
 
@@ -132,20 +136,6 @@
   if ([self.selectedImage.name isEqualToString:@"Custom Image"]) {
     [self showCustomImageView];
   } else {
-    // Check the config for changes before each image session, to avoid using outdated images.
-    NSError *error = [self.configController checkConfiguration];
-    if (error) {
-      [self showAlertWithText:error.localizedDescription detail:error.localizedFailureReason];
-      return;
-    }
-    // But the new config may have removed the selected image from the list.
-    if (![self.configController.images containsObject:self.selectedImage]) {
-      [self showAlertWithText:@"The selected image was expired"
-                       detail:@"Please select a new image."];
-      self.selectedImage = self.configController.images.firstObject;
-      [self selectedImageDidChange:self];
-      return;
-    }
     [self downloadIfNeededWithCompletionBlock:^{
       [self imageAllSelectedDisks];
     }];
@@ -225,6 +215,11 @@
 
 // Start imaging a single connected disk using the currently selected image.
 - (void)imageDisk:(Disk *)disk {
+  if (![self checkConfiguration]) {
+    self.autoImageMode = NO;
+    return;
+  }
+
   ImagingSession *is = [[ImagingSession alloc] initWithImage:self.selectedImage
                                                   targetDisk:disk
                                             helperConnection:self.configController.helperConnection];
@@ -304,13 +299,41 @@
   [self presentViewControllerAsSheet:vc];
 }
 
+#pragma mark Configuration checking
+
+// Check if the configuration plist changed in order to avoid using outdated images. If we are
+// unable download the configuration or if the currently selected image is no longer listed in the
+// new config, then displays an error and returns NO.
+- (BOOL)checkConfiguration {
+  // Don't bother checking unless it's been a while since the last check.
+  if (self.lastConfigCheck && -[self.lastConfigCheck timeIntervalSinceNow] < kConfigCheckInterval) {
+    return YES;
+  }
+  NSError *error = [self.configController checkConfiguration];
+  if (error) {
+    [self showAlertWithText:error.localizedDescription detail:error.localizedFailureReason];
+    return NO;
+  }
+  // Note that we successfully retrieved the current configuration.
+  self.lastConfigCheck = [NSDate date];
+  // But the new config may have removed the selected image from the list.
+  if (![self.configController.images containsObject:self.selectedImage]) {
+    [self showAlertWithText:@"The selected image has expired"
+                     detail:@"Please select a new image."];
+    self.selectedImage = self.configController.images.firstObject;
+    [self selectedImageDidChange:self];
+    return NO;
+  }
+  return YES;
+}
+
 // Display an alert as a modal sheet with the specified text.
 - (void)showAlertWithText:(NSString *)text detail:(NSString *)detail {
-  NSAlert *alert = [[NSAlert alloc] init];
-  alert.alertStyle = NSAlertStyleCritical;
-  alert.messageText = text;
-  alert.informativeText = detail;
   dispatch_async(dispatch_get_main_queue(), ^{
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.alertStyle = NSAlertStyleCritical;
+    alert.messageText = text;
+    alert.informativeText = detail;
     [alert beginSheetModalForWindow:self.view.window completionHandler:nil];
   });
 }
