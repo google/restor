@@ -29,7 +29,7 @@
 #import "Image.h"
 
 // How long to wait in between config checks.
-static const int kConfigCheckInterval = 15 * 60;
+static const NSTimeInterval kConfigCheckInterval = 15 * 60;
 
 @interface MainViewController ()
 
