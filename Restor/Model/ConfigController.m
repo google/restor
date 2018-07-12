@@ -168,6 +168,7 @@ static NSString *kCustomImageKey = @"CustomImage";
     BOOL isValid = NO;
 
     for (Image *image in self.images) {
+      if (image.custom) continue;  // don't validate or remove custom user images
       if ([image.name isEqualToString:imageName]) {
         // Validate the image hash
         NSString *checksum, *expected;

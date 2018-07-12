@@ -26,6 +26,7 @@
     }
     _sha256 = dict[@"SHA-256"];
     _sha512 = dict[@"SHA-512"];
+    _custom = [dict[@"Custom"] boolValue];
   }
   return self;
 }
@@ -38,6 +39,7 @@
   [coder encodeObject:self.sha256 forKey:@"sha256"];
   [coder encodeObject:self.sha512 forKey:@"sha512"];
   [coder encodeObject:self.localURL forKey:@"localURL"];
+  [coder encodeObject:@(self.custom) forKey:@"custom"];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)decoder {
@@ -48,6 +50,7 @@
     _sha256 = [decoder decodeObjectOfClass:[NSString class] forKey:@"sha256"];
     _sha512 = [decoder decodeObjectOfClass:[NSString class] forKey:@"sha512"];
     _localURL = [decoder decodeObjectOfClass:[NSURL class] forKey:@"localURL"];
+    _custom = [[decoder decodeObjectOfClass:[NSNumber class] forKey:@"custom"] boolValue];
   }
   return self;
 }

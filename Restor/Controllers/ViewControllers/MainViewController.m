@@ -305,8 +305,10 @@ static const NSTimeInterval kConfigCheckInterval = 15 * 60;
 // unable download the configuration or if the currently selected image is no longer listed in the
 // new config, then displays an error and returns NO.
 - (BOOL)checkConfiguration {
-  // Don't bother checking unless it's been a while since the last check.
-  if (self.lastConfigCheck && -[self.lastConfigCheck timeIntervalSinceNow] < kConfigCheckInterval) {
+  // Don't bother checking unless it's been a while since the last check. Also don't need to check
+  // when the selected image is a custom image (it wouldn't be in the config anyway).
+  if ((self.lastConfigCheck && -[self.lastConfigCheck timeIntervalSinceNow] < kConfigCheckInterval)
+      || self.selectedImage.custom) {
     return YES;
   }
   NSError *error = [self.configController checkConfiguration];
