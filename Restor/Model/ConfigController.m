@@ -1,4 +1,4 @@
-/// Copyright 2017 Google Inc. All rights reserved.
+/// Copyright 2018 Google LLC. All rights reserved.
 ///
 /// Licensed under the Apache License, Version 2.0 (the "License");
 /// you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 static NSString *kPreferenceDomain = @"com.google.corp.restor";
 static NSString *kConfigURLKey = @"ConfigURL";
 static NSString *kCustomImageKey = @"CustomImage";
+static NSString *kConfigCheckIntervalKey = @"ConfigCheckInterval";
 
 @class MOLXPCConnection;
 
@@ -33,6 +34,7 @@ static NSString *kCustomImageKey = @"CustomImage";
 @property(nonatomic) MOLXPCConnection *helperConnection;
 // The session to use when fetching the configuration.
 @property NSURLSession *session;
+@property NSUserDefaults *defaults;
 @end
 
 @implementation ConfigController
@@ -42,6 +44,9 @@ static NSString *kCustomImageKey = @"CustomImage";
   if (self) {
     self.session = [[[MOLAuthenticatingURLSession alloc] init] session];
     self.images = [NSArray array];
+    self.defaults = [[NSUserDefaults alloc] initWithSuiteName:kPreferenceDomain];
+    // Set the default value for the config check interval to be 15 minutes.
+    [self.defaults registerDefaults:@{kConfigCheckIntervalKey: @(15*60.0)}];
   }
   return self;
 }
@@ -82,6 +87,10 @@ static NSString *kCustomImageKey = @"CustomImage";
 
   self.images = [NSArray arrayWithArray:newImages.array];
   return nil;
+}
+
+- (NSTimeInterval)configCheckInterval {
+  return [self doublePreferenceForKey:kConfigCheckIntervalKey];
 }
 
 #pragma mark Configuration File
@@ -195,25 +204,22 @@ static NSString *kCustomImageKey = @"CustomImage";
 
 #pragma mark Helper methods
 
-- (id)preferenceForKey:(NSString *)key {
-  static NSUserDefaults *defaults;
-  static dispatch_once_t onceToken;
-  dispatch_once(&onceToken, ^{
-    defaults = [[NSUserDefaults alloc] initWithSuiteName:kPreferenceDomain];
-  });
-  return [defaults valueForKey:key];
-}
-
 - (NSString *)stringPreferenceForKey:(NSString *)key {
-  id value = [self preferenceForKey:key];
+  id value = [self.defaults valueForKey:key];
   if (![value isKindOfClass:[NSString class]]) return nil;
   return value;
 }
 
 - (BOOL)boolPreferenceForKey:(NSString *)key {
-  id value = [self preferenceForKey:key];
+  id value = [self.defaults valueForKey:key];
   if (![value isKindOfClass:[NSNumber class]]) return NO;
   return [value boolValue];
+}
+
+- (double)doublePreferenceForKey:(NSString *)key {
+  id value = [self.defaults valueForKey:key];
+  if (![value isKindOfClass:[NSNumber class]]) return 0;
+  return [value doubleValue];
 }
 
 - (NSURL *)cachePath {

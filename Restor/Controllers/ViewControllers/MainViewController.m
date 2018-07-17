@@ -28,9 +28,6 @@
 #import "ImagingSession.h"
 #import "Image.h"
 
-// How long to wait in between config checks.
-static const NSTimeInterval kConfigCheckInterval = 15 * 60;
-
 @interface MainViewController ()
 
 @property IBOutlet NSCollectionView *collectionView;
@@ -307,7 +304,8 @@ static const NSTimeInterval kConfigCheckInterval = 15 * 60;
 - (BOOL)checkConfiguration {
   // Don't bother checking unless it's been a while since the last check. Also don't need to check
   // when the selected image is a custom image (it wouldn't be in the config anyway).
-  if ((self.lastConfigCheck && -[self.lastConfigCheck timeIntervalSinceNow] < kConfigCheckInterval)
+  NSTimeInterval elapsed = -[self.lastConfigCheck timeIntervalSinceNow];
+  if ((self.lastConfigCheck && elapsed < self.configController.configCheckInterval)
       || self.selectedImage.custom) {
     return YES;
   }

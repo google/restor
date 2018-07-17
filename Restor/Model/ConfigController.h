@@ -1,4 +1,4 @@
-/// Copyright 2017 Google Inc. All rights reserved.
+/// Copyright 2018 Google LLC. All rights reserved.
 ///
 /// Licensed under the Apache License, Version 2.0 (the "License");
 /// you may not use this file except in compliance with the License.
@@ -26,6 +26,9 @@
 
 // Connection to the helper tool.
 @property(readonly, nonatomic) MOLXPCConnection *helperConnection;
+
+// How long to wait in seconds between successive config checks.
+@property(readonly) NSTimeInterval configCheckInterval;
 
 // Download & parse config and validate image cache.
 - (NSError *)checkConfiguration;
