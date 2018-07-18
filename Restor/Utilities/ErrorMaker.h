@@ -18,6 +18,8 @@
 ///  and strings.
 @interface ErrorMaker : NSObject
 
-+ (NSError *)errorWithCode:(NSInteger)code string:(NSString *)string;
++ (NSError *)errorWithCode:(NSInteger)code
+               description:(NSString *)description
+                    reason:(NSString *)reason;
 
 @end

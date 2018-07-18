@@ -14,18 +14,12 @@
 
 @import Cocoa;
 
-@class ImageCacheController;
-
-// ConfigController parses a configuration plist, storing an array of image objects, verifying
-// the download state of images and deleting previously downloaded images that no longer exist.
+/// ConfigViewController creates a ConfigController and displays the process of downloading and
+/// parsing a configuration plist and verifying the state of cached images, deleting previously
+/// downloaded images that no longer exist in the configuration.
 @interface ConfigViewController : NSViewController
-
-// The session to use when fetching the configuration.
-@property IBOutlet NSURLSession *session;
-
-@property(readonly, nonatomic) ImageCacheController *imageCacheController;
-
-// Download & parse config, connect to helper tool, and validate image cache.
-- (IBAction)attemptConfiguration:(id)sender;
-
+/// Set if an error occurs.
+@property(readonly) NSError *error;
+/// String describing current state of ConfigController.
+@property(readonly) NSString *statusText;
 @end

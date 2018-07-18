@@ -1,4 +1,4 @@
-/// Copyright 2017 Google Inc. All rights reserved.
+/// Copyright 2018 Google LLC. All rights reserved.
 ///
 /// Licensed under the Apache License, Version 2.0 (the "License");
 /// you may not use this file except in compliance with the License.
@@ -15,25 +15,33 @@
 @import Foundation;
 
 @class Image;
+@class MOLXPCConnection;
 
-///  ImageCacheController is responsible for managing the local cache of images, ensuring
-///  that old or invalid images are deleted.
-@interface ImageCacheController : NSObject
+// ConfigController parses a configuration plist, storing an array of image objects, verifying
+// the download state of images and deleting previously downloaded images that no longer exist.
+@interface ConfigController : NSObject
 
-// Initialize with an array of images
-- (instancetype)initWithImages:(NSArray<Image *> *)images NS_DESIGNATED_INITIALIZER;
+// List of images found in the config file.
+@property(readonly) NSArray<Image *> *images;
 
-- (instancetype)init NS_UNAVAILABLE;
+// Connection to the helper tool.
+@property(readonly, nonatomic) MOLXPCConnection *helperConnection;
+
+// How long to wait in seconds between successive config checks.
+@property(readonly) NSTimeInterval configCheckInterval;
+
+// Download & parse config and validate image cache.
+- (NSError *)checkConfiguration;
+
+// Connects to the helper tool, setting helperConnection property.
+- (NSError *)connectToHelperTool;
 
 // Validates that the images stored on disk still exist in the image array provided at
 // initialization and that their hashes match. This might take a while as it involves
 // enumerating files on disk and hashing them.
 - (void)validateImageCache;
 
+// Returns the local filepath where a previously downloaded image would be located.
 - (NSURL *)localPathForImage:(Image *)image;
-
-// The array of images that was supplied at init.
-@property(readonly) NSArray<Image *> *images;
-
 
 @end

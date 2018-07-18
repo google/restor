@@ -37,4 +37,7 @@
 /// The URL of the image on disk, if it exists
 @property NSURL *localURL;
 
+/// Whether or not this image is a custom image specifed by the user
+@property(readonly, nonatomic) BOOL custom;
+
 @end

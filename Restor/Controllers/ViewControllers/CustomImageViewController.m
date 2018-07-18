@@ -26,7 +26,8 @@
   // Create a new custom image and pass it to the completion block.
   Image *image = [[Image alloc] initWithDictionary:@{
       @"Name" : self.imageURL.pathComponents.lastObject.stringByDeletingPathExtension,
-      @"URL" : self.imageURL
+      @"URL" : self.imageURL,
+      @"Custom": @YES,
   }];
   if ([image.URL.scheme isEqualToString:@"file"]) {
     image.localURL = image.URL;

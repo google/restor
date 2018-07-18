@@ -26,6 +26,7 @@
     }
     _sha256 = dict[@"SHA-256"];
     _sha512 = dict[@"SHA-512"];
+    _custom = [dict[@"Custom"] boolValue];
   }
   return self;
 }
@@ -38,6 +39,7 @@
   [coder encodeObject:self.sha256 forKey:@"sha256"];
   [coder encodeObject:self.sha512 forKey:@"sha512"];
   [coder encodeObject:self.localURL forKey:@"localURL"];
+  [coder encodeObject:@(self.custom) forKey:@"custom"];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)decoder {
@@ -48,6 +50,7 @@
     _sha256 = [decoder decodeObjectOfClass:[NSString class] forKey:@"sha256"];
     _sha512 = [decoder decodeObjectOfClass:[NSString class] forKey:@"sha512"];
     _localURL = [decoder decodeObjectOfClass:[NSURL class] forKey:@"localURL"];
+    _custom = [[decoder decodeObjectOfClass:[NSNumber class] forKey:@"custom"] boolValue];
   }
   return self;
 }
@@ -58,6 +61,24 @@
 
 - (NSString *)description {
   return self.name;
+}
+
+#pragma mark Equality
+
+- (BOOL)isEqualToImage:(Image *)image {
+  // Two images are considered equal if they have the same name and same stored checksums.
+  if (![self.name isEqualToString:image.name]) return NO;
+  if ((self.sha256 || image.sha256) && ![self.sha256 isEqualToString:image.sha256]) return NO;
+  if ((self.sha512 || image.sha512) && ![self.sha512 isEqualToString:image.sha512]) return NO;
+  return YES;
+}
+
+- (BOOL)isEqual:(id)object {
+  return (self == object || ([object isKindOfClass:[Image class]] && [self isEqualToImage:object]));
+}
+
+- (NSUInteger)hash {
+  return [self.name hash] ^ [self.sha256 hash] ^ [self.sha512 hash];
 }
 
 @end
