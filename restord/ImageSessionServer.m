@@ -112,7 +112,7 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 
   NSError *err;
   if (asrReturnCode == 0) {
-    DADiskRef disk = self.diskRef;
+    DADiskRef disk = NULL;
 
     // Get the synthesized "Macintosh HD" apfs disk, if any.
     NSString *apfsOSDisk = [self apfsOSDisk];
@@ -121,15 +121,16 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
       disk = DADiskCreateFromBSDName(NULL, self.diskArbSession, apfsBootDisk.UTF8String);
     }
 
-    NSURL *mountURL = [self mountDisk:disk];
-    if (!mountURL) {
-      NSLog(@"%@ Unable to remount target, skipping imaginfo.plist application", self);
-    } else {
+    NSURL *mountURL = [self mountDisk:disk ?: self.diskRef];
+    if (mountURL) {
       NSLog(@"%@ Remounted target %@ as %@", self, self.destination.path, mountURL.path);
       [self applyImageInfo:mountURL];
       [self blessMountURL:mountURL];
-      [self unmountDisk:disk];
+      [self unmountDisk:disk ?: self.diskRef];
+    } else {
+      NSLog(@"%@ Unable to remount target, skipping imaginfo.plist application", self);
     }
+
     if (disk) CFRelease(disk);
   } else {
     err = [self constructErrorFromReturnCode:asrReturnCode];
