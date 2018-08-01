@@ -11,6 +11,13 @@ DEPENDENCIES:
   - MOLAuthenticatingURLSession
   - MOLXPCConnection
 
+SPEC REPOS:
+  https://github.com/cocoapods/specs.git:
+    - MOLAuthenticatingURLSession
+    - MOLCertificate
+    - MOLCodesignChecker
+    - MOLXPCConnection
+
 SPEC CHECKSUMS:
   MOLAuthenticatingURLSession: c238aa1c9a7b1077eb39a6f40204bfe76a7d204e
   MOLCertificate: c999513316d511c69f290fbf313dfe8dca4ad592
@@ -19,4 +26,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 5cf4b07f7d175476d2cc6f41208074b1933af454
 
-COCOAPODS: 1.4.0
+COCOAPODS: 1.5.3

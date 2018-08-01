@@ -27,7 +27,6 @@
 @property(readonly, nonatomic) NSString *volName;
 @property(readonly, nonatomic) NSString *volKind;
 @property(readonly, nonatomic) NSString *mediaName;
-@property(readonly, nonatomic) NSString *mediaContent;
 @property(readonly, nonatomic) BOOL isInternal;
 @property(readonly, nonatomic) BOOL isWhole;
 @property(readonly, nonatomic) BOOL isNetwork;

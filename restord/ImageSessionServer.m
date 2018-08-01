@@ -36,8 +36,6 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 /// The source URL of the image
 @property(copy) Image *image;
 
-@property BOOL isImageAPFS;
-
 /// The target disk/partition.
 @property(copy) Disk *targetDisk;
 
@@ -60,6 +58,9 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 @property DASessionRef diskArbSession;
 @property DADiskRef diskRef;
 
+// Unknown ASR lines
+@property NSMutableArray *asrUnknownLines;
+
 @end
 
 @implementation ImageSessionServer
@@ -74,7 +75,7 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
     _destination = [NSURL fileURLWithPathComponents:@[@"/dev", targetDisk.bsdName]];
     _client = conn;
     _startDate = [NSDate date];
-    _isImageAPFS = [self isImageAPFSContainer];
+    _asrUnknownLines = [NSMutableArray array];
 
     NSLog(@"%@ New imaging client: s: '%@', d: %@", self, _image.name, _destination.path);
 
@@ -103,35 +104,59 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 - (void)beginImaging {
   [self unmountDisk:self.diskRef];
 
-  int diskUtilReturnCode = [self eraseDisk];
-  NSLog(@"%@ DiskUtil exit code: %d", self, diskUtilReturnCode);
+  // Remove any top level recovery partitions.
+  [self removeRecovery];
 
   int asrReturnCode = [self applyImage];
   NSLog(@"%@ ASR exit code: %d", self, asrReturnCode);
 
+  NSError *err;
   if (asrReturnCode == 0) {
     DADiskRef disk = NULL;
-    if (self.isImageAPFS) {
-      NSString *apfsBootDisk = [NSString stringWithFormat:@"/dev/%@", [self apfsBootDisk]];
+
+    // Get the synthesized "Macintosh HD" apfs disk, if any.
+    NSString *apfsOSDisk = [self apfsOSDisk];
+    if (apfsOSDisk) {
+      NSString *apfsBootDisk = [NSString stringWithFormat:@"/dev/%@", apfsOSDisk];
       disk = DADiskCreateFromBSDName(NULL, self.diskArbSession, apfsBootDisk.UTF8String);
     }
+
     NSURL *mountURL = [self mountDisk:disk ?: self.diskRef];
-    if (!mountURL) {
-      NSLog(@"%@ Unable to remount target, skipping imaginfo.plist application", self);
-    } else {
+    if (mountURL) {
       NSLog(@"%@ Remounted target %@ as %@", self, self.destination.path, mountURL.path);
-
-      // Set imageinfo.plist keys
       [self applyImageInfo:mountURL];
-
       [self blessMountURL:mountURL];
       [self unmountDisk:disk ?: self.diskRef];
+    } else {
+      NSLog(@"%@ Unable to remount target, skipping imaginfo.plist application", self);
     }
+
     if (disk) CFRelease(disk);
+  } else {
+    err = [self constructErrorFromReturnCode:asrReturnCode];
   }
 
   // Send final reply with task status.
-  [[self.client remoteObjectProxy] imageAppliedSuccess:(asrReturnCode == 0)];
+  [[self.client remoteObjectProxy] imageAppliedSuccess:(asrReturnCode == 0) error:err];
+}
+
+- (NSError *)constructErrorFromReturnCode:(int)code {
+  NSMutableString *s = [NSMutableString stringWithFormat:@"ASR failed with exit code: %d.", code];
+
+  if (self.asrUnknownLines.count) {
+    [s appendString:@"\nPotential Errors:"];
+    for (NSString *line in self.asrUnknownLines) {
+      [s appendFormat:@"\n%@", line];
+    }
+  }
+
+  NSOperatingSystemVersion version = {10, 13, 4};
+  if (![[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:version]) {
+    [s appendString:@"\nHave you tried Restor on macOS 10.13.4 or above?"];
+  }
+
+  NSDictionary *info = @{ NSLocalizedDescriptionKey: s };
+  return [NSError errorWithDomain:@"com.google.corp.restord" code:555 userInfo:info];
 }
 
 - (void)cancelImaging {
@@ -140,110 +165,44 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
   self.asr = nil;
 }
 
-- (int)eraseDisk {
-  // Check the target disk's GPT to erase with the appropriate tools
-  if ([self.targetDisk.mediaContent isEqualToString:kGPTAPFSUUID]) {
-    NSLog(@"Delete APFS Container");
-    return [self deleteAPFSContainer];
-  } else if ([self.targetDisk.mediaContent isEqualToString:kGPTCoreStorageUUID]) {
-    NSLog(@"Delete CoreStorage LogicalVolumeGroup");
-    NSString *lvg = [self coreStorageLogicalVolumeGroup];
-    return [self deleteCoreStorageLogicalVolumeGroup:lvg];
-  } else {
-    NSLog(@"Erase HFS Volume");
-    NSTask *diskUtil = [[NSTask alloc] init];
-    diskUtil.standardOutput = [NSPipe pipe];
-    diskUtil.standardError = [NSPipe pipe];
-    diskUtil.launchPath = @"/usr/sbin/diskutil";
-    diskUtil.arguments = @[ @"eraseVolume", @"JHFS+", @"%noformat", self.destination.path ];
-    [diskUtil launch];
-    [diskUtil waitUntilExit];
-    return diskUtil.terminationStatus;
-  }
-}
-
-- (int)deleteCoreStorageLogicalVolumeGroup:(NSString *)lvg {
-  if (!lvg) return -1;
-  NSTask *diskUtil = [[NSTask alloc] init];
-  diskUtil.launchPath = @"/usr/sbin/diskutil";
-  diskUtil.arguments = @[ @"cs", @"delete", lvg ];
-  [diskUtil launch];
-  [diskUtil waitUntilExit];
-  return diskUtil.terminationStatus;
-}
-
-- (NSString *)coreStorageLogicalVolumeGroup {
+- (NSString *)recoveryDevice {
   NSTask *diskUtil = [[NSTask alloc] init];
   diskUtil.standardOutput = [NSPipe pipe];
-  diskUtil.standardError = [NSPipe pipe];
   diskUtil.launchPath = @"/usr/sbin/diskutil";
-  diskUtil.arguments = @[ @"cs", @"info", @"-plist", self.destination.path ];
+  diskUtil.arguments = @[ @"info", @"-plist", self.destination.path ];
   [diskUtil launch];
   [diskUtil waitUntilExit];
 
   NSData *sout = [[diskUtil.standardOutput fileHandleForReading] readDataToEndOfFile];
   if (sout) {
-    NSDictionary *csDict = [NSPropertyListSerialization propertyListWithData:sout
-                                                                     options:0
-                                                                      format:NULL
-                                                                       error:NULL];
-    return csDict[@"MemberOfCoreStorageLogicalVolumeGroup"];
+    NSDictionary *info = [NSPropertyListSerialization propertyListWithData:sout
+                                                                   options:0
+                                                                    format:NULL
+                                                                     error:NULL];
+    if ([info isKindOfClass:[NSDictionary class]]) return info[@"RecoveryDeviceIdentifier"];
   }
   return nil;
 }
 
-- (int)deleteAPFSContainer {
+- (void)removeRecovery {
+  NSString *recoveryDevice = [self recoveryDevice];
+  if (!recoveryDevice) return;
+  NSLog(@"%@ Removing recovery device: %@", self, recoveryDevice);
   NSTask *diskUtil = [[NSTask alloc] init];
   diskUtil.launchPath = @"/usr/sbin/diskutil";
-  diskUtil.arguments = @[ @"apfs", @"deleteContainer", self.destination.path ];
+  diskUtil.arguments = @[ @"eraseVolume", @"Free", @"Space", recoveryDevice ];
   [diskUtil launch];
   [diskUtil waitUntilExit];
-  return diskUtil.terminationStatus;
-}
-
-- (int)createAPFSContainer {
-  NSTask *diskUtil = [[NSTask alloc] init];
-  diskUtil.launchPath = @"/usr/sbin/diskutil";
-  diskUtil.arguments = @[ @"apfs", @"createContainer", self.destination.path ];
-  [diskUtil launch];
-  [diskUtil waitUntilExit];
-  return diskUtil.terminationStatus;
-}
-
-- (NSArray *)partitionsForImageDict:(NSDictionary *)imageDict {
-  if (![imageDict isKindOfClass:[NSDictionary class]]) return nil;
-  if (![imageDict[@"partitions"] isKindOfClass:[NSDictionary class]]) return nil;
-  if (![imageDict[@"partitions"][@"partitions"] isKindOfClass:[NSArray class]]) return nil;
-  return imageDict[@"partitions"][@"partitions"];
-}
-
-- (BOOL)isImageAPFSContainer {
-  NSTask *hdiUtil = [[NSTask alloc] init];
-  hdiUtil.standardOutput = [NSPipe pipe];
-  hdiUtil.standardError = [NSPipe pipe];
-  hdiUtil.launchPath = @"/usr/bin/hdiutil";
-  hdiUtil.arguments = @[ @"imageinfo", @"-plist", self.image.localURL.path ];
-  [hdiUtil launch];
-  [hdiUtil waitUntilExit];
-
-  NSData *sout = [[hdiUtil.standardOutput fileHandleForReading] readDataToEndOfFile];
-  if (sout) {
-    NSDictionary *imageDict = [NSPropertyListSerialization propertyListWithData:sout
-                                                                        options:0
-                                                                         format:NULL
-                                                                          error:NULL];
-    for (NSDictionary *partition in [self partitionsForImageDict:imageDict]) {
-      if (![partition isKindOfClass:[NSDictionary class]]) return NO;
-      if ([partition[@"partition-hint-UUID"] isEqualToString:kGPTAPFSUUID]) return YES;
-    }
+  if (diskUtil.terminationStatus == 0) {
+    NSLog(@"%@ Recovery device: %@ removed", self, recoveryDevice);
+  } else {
+    NSLog(@"%@ Failed to remove recovery device: %@", self, recoveryDevice);
   }
-  return NO;
 }
 
-- (NSString *)apfsBootDisk {
+- (NSString *)apfsOSDisk {
   NSTask *diskUtil = [[NSTask alloc] init];
   diskUtil.standardOutput = [NSPipe pipe];
-  diskUtil.standardError = [NSPipe pipe];
   diskUtil.launchPath = @"/usr/sbin/diskutil";
   diskUtil.arguments = @[ @"apfs", @"list", @"-plist" ];
   [diskUtil launch];
@@ -255,11 +214,11 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
                                                                         options:0
                                                                          format:NULL
                                                                           error:NULL];
-    // Find the boot APFS volume and return it's BSD disk name.
+    // Find the APFS OS volume (Macintosh HD) and return its BSD disk name.
     for (NSDictionary *c in apfsDict[@"Containers"]) {
       if (![c isKindOfClass:[NSDictionary class]]) return nil;
       if (![c[@"DesignatedPhysicalStore"] isEqualToString:self.targetDisk.bsdName]) continue;
-      // Find the first volume that does not have a role. This should be the boot volume.
+      // Find the first volume that does not have a role. This should be the OS volume.
       for (NSDictionary *volume in c[@"Volumes"]) {
         if (![volume isKindOfClass:[NSDictionary class]]) return nil;
         if (![volume[@"Roles"] isKindOfClass:[NSArray class]]) return nil;
@@ -272,22 +231,6 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 
 - (int)applyImage {
   NSString *path = self.image.localURL.path;
-
-  // asr chokes if the destination is not already an APFS container when applying an APFS image.
-  if (self.isImageAPFS) {
-    NSLog(@"Create APFS Container");
-    int ret = [self createAPFSContainer];
-    if (ret != 0) {
-      NSError *e = [NSError errorWithDomain:@"com.google.corp.restord"
-                                       code:555
-                                   userInfo:@{
-        NSLocalizedDescriptionKey:@"You can only apply a 10.13 or later image "
-                                  @"from a Mac running 10.13 or later."
-      }];
-      [[self.client remoteObjectProxy] errorOccurred:e];
-      return ret;
-    }
-  }
 
   self.asr = [[NSTask alloc] init];
   self.asr.launchPath = @"/usr/sbin/asr";
@@ -322,8 +265,7 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 
   // Clear readability handler or the file handle is never released.
   outputFh.readabilityHandler = nil;
-
-  return self.asr.terminationStatus;
+  return self.asr ? self.asr.terminationStatus : -1;
 }
 
 - (void)processOutput:(NSData *)output {
@@ -357,18 +299,20 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
       }
     } else if ([line isEqualToString:@"Personalization over TDM succeeded"]) {
       NSLog(@"%@ %@", self, line);
+    } else if ([line isEqualToString:@"Inverting target volume..."]) {
+      [[self.client remoteObjectProxy] invertingStarted];
     } else if (line.length >= dirtyLine.length &&
                ![line isEqualToString:@"done"] &&
                ![line isEqualToString:@"Validating target..."] &&
+               ![line isEqualToString:@"Validating source..."] &&
                ![line isEqualToString:@"Validating sizes..."] &&
+               ![line isEqualToString:@"Repartitioning target device..."] &&
+               ![line isEqualToString:@"Retrieving scan information..."] &&
                ![line hasPrefix:@"nx_kernel_mount"]) {
       // If line doesn't begin with a tab (an INFO message) and isn't a known info message,
-      // treat it as an error :-(
-      NSLog(@"%@ ASR Error: %@", self, line);
-      NSError *e = [NSError errorWithDomain:@"com.google.corp.restord"
-                                       code:666
-                                   userInfo:@{ NSLocalizedDescriptionKey: line }];
-      [[self.client remoteObjectProxy] errorOccurred:e];
+      // save the line and surface it as an error if ASR fails.
+      NSLog(@"%@ ASR unknown line: %@", self, line);
+      [self.asrUnknownLines addObject:line];
     }
   }
 }
@@ -395,7 +339,7 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
   DADiskMount(disk, (__bridge CFURLRef)directoryURL, 0,
               &MountUnmountCallback, (__bridge void *)sema);
   if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC))) {
-    NSLog(@"%@ timed out while mounting disk", self);
+    NSLog(@"%@ Timed out while mounting disk", self);
     return nil;
   }
 
@@ -408,7 +352,7 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);
   DADiskUnmount(disk, kDADiskUnmountOptionForce, &MountUnmountCallback, (__bridge void *)sema);
   if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC))) {
-    NSLog(@"%@ timed out while unmounting disk", self);
+    NSLog(@"%@ Timed out while unmounting disk", self);
   }
 }
 
@@ -439,18 +383,14 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
                                                                  format:NSPropertyListXMLFormat_v1_0
                                                                 options:0
                                                                   error:&error];
-  if (!error) {
-    [plistData writeToURL:imageInfoURL options:NSDataWritingAtomic error:&error];
-  }
-
-  if (error) {
+  if ([plistData writeToURL:imageInfoURL options:NSDataWritingAtomic error:&error]) {
+    NSLog(@"%@ Successfully written: %@", self, imageInfoURL.path);
+  } else {
     NSLog(@"%@ Failed to write imageinfo.plist: %@", self, error);
   }
 }
 
 - (void)blessMountURL:(NSURL *)mountURL {
-  NSOperatingSystemVersion version = {10, 13, 4};
-  if (![[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:version]) return;
   NSTask *bless = [[NSTask alloc] init];
   bless.launchPath = @"/usr/sbin/bless";
   bless.arguments = @[ @"--folder", mountURL.path ];

@@ -27,7 +27,6 @@
     _volName = dict[(__bridge NSString *)kDADiskDescriptionVolumeNameKey];
     _volKind = dict[(__bridge NSString *)kDADiskDescriptionVolumeKindKey];
     _mediaName = dict[(__bridge NSString *)kDADiskDescriptionMediaNameKey];
-    _mediaContent = dict[(__bridge NSString *)kDADiskDescriptionMediaContentKey];
     _diskSize = dict[(__bridge NSString *)kDADiskDescriptionMediaSizeKey];
     _protocol = dict[(__bridge NSString *)kDADiskDescriptionDeviceProtocolKey];
     _isWhole = [dict[(__bridge NSString *)kDADiskDescriptionMediaWholeKey] boolValue];
@@ -61,7 +60,6 @@
   [coder encodeObject:self.volName forKey:@"volName"];
   [coder encodeObject:self.volKind forKey:@"volKind"];
   [coder encodeObject:self.mediaName forKey:@"mediaName"];
-  [coder encodeObject:self.mediaContent forKey:@"mediaContent"];
   [coder encodeObject:self.diskSize forKey:@"diskSize"];
   [coder encodeObject:self.protocol forKey:@"protocol"];
   [coder encodeObject:@(self.isWhole) forKey:@"isWhole"];
@@ -77,7 +75,6 @@
     _volName = [decoder decodeObjectOfClass:[NSString class] forKey:@"volName"];
     _volKind = [decoder decodeObjectOfClass:[NSString class] forKey:@"volKind"];
     _mediaName = [decoder decodeObjectOfClass:[NSString class] forKey:@"mediaName"];
-    _mediaContent = [decoder decodeObjectOfClass:[NSString class] forKey:@"mediaContent"];
     _diskSize = [decoder decodeObjectOfClass:[NSNumber class] forKey:@"diskSize"];
     _protocol = [decoder decodeObjectOfClass:[NSString class] forKey:@"protocol"];
     _isWhole = [[decoder decodeObjectOfClass:[NSNumber class] forKey:@"isWhole"] boolValue];

@@ -72,6 +72,7 @@
 
     dispatch_async(dispatch_get_main_queue(), ^{
       STRONGIFY(self);
+      if ([self.connectedDisks containsObject:disk]) return;
       [[self mutableArrayValueForKey:@"connectedDisks"] addObject:disk];
       [self.collectionView reloadData];
 
@@ -88,17 +89,27 @@
   };
   self.diskWatcher.disappearCallback = ^(Disk *disk) {
     STRONGIFY(self);
-    ImagingSession *is = self.imagingSessions[disk.bsdName];
-    self.imagingSessions[disk.bsdName] = nil;
 
-    dispatch_sync(dispatch_get_main_queue(), ^{
-      STRONGIFY(self);
-      [[self mutableArrayValueForKey:@"connectedDisks"] removeObject:disk];
-      [self.collectionView reloadData];
-    });
+    // Only proccess whole disks
+    if (!disk.isWhole) return;
 
-    // Do this after the UI updates to avoid breaking KVO.
-    [is cancel];
+    // Remove all leaf disks
+    for (Disk *connectedDisk in self.connectedDisks) {
+      if (![connectedDisk.bsdName hasPrefix:disk.bsdName]) continue;
+
+      ImagingSession *is = self.imagingSessions[connectedDisk.bsdName];
+      self.imagingSessions[connectedDisk.bsdName] = nil;
+
+      dispatch_sync(dispatch_get_main_queue(), ^{
+        STRONGIFY(self);
+        [[self mutableArrayValueForKey:@"connectedDisks"] removeObject:connectedDisk];
+        [self.collectionView reloadData];
+      });
+
+      // Do this after the UI updates to avoid breaking KVO.
+      [is cancel];
+    }
+
   };
   [self.diskWatcher beginWatching];
 }

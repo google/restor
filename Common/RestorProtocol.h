@@ -69,17 +69,16 @@
 - (void)verifyingPercentage:(NSUInteger)percent;
 
 /*
-  Notifies the UI that an error has occurred and imaging has stopped.
-
-  @param error An error object containing details of the error that occurred.
+  Notifies the UI that inverting has started.
 */
-- (void)errorOccurred:(NSError *)error;
+- (void)invertingStarted;
 
 /*
   Notifies the UI that imaging has completed and ASR has exited.
 
   @param success YES if ASR exited with 0.
+  @param error An error object containing details of the error that occurred.
 */
-- (void)imageAppliedSuccess:(BOOL)success;
+- (void)imageAppliedSuccess:(BOOL)success error:(NSError *)error;
 
 @end
