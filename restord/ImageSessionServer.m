@@ -214,7 +214,7 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
                                                                         options:0
                                                                          format:NULL
                                                                           error:NULL];
-    // Find the APFS OS volume (Macintosh HD) and return it's BSD disk name.
+    // Find the APFS OS volume (Macintosh HD) and return its BSD disk name.
     for (NSDictionary *c in apfsDict[@"Containers"]) {
       if (![c isKindOfClass:[NSDictionary class]]) return nil;
       if (![c[@"DesignatedPhysicalStore"] isEqualToString:self.targetDisk.bsdName]) continue;
