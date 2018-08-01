@@ -29,7 +29,6 @@
 @property(readwrite) NSUInteger percentComplete;
 @property(readwrite) ImagingStage imagingStage;
 @property(readwrite) NSError *lastError;
-@property NSError *error;
 @end
 
 @implementation ImagingSession
@@ -70,7 +69,6 @@
   dispatch_async(dispatch_get_main_queue(), ^{
     self.imagingStage = ImagingStageImaging;
     self.percentComplete = percent;
-    self.error = nil;
   });
 }
 
@@ -78,23 +76,21 @@
   dispatch_async(dispatch_get_main_queue(), ^{
     self.imagingStage = ImagingStageVerifying;
     self.percentComplete = percent;
-    self.error = nil;
   });
 }
 
-- (void)errorOccurred:(NSError *)error {
+- (void)invertingStarted {
   dispatch_async(dispatch_get_main_queue(), ^{
-    self.imagingStage = ImagingStageError;
-    self.error = error;
+    self.imagingStage = ImagingStageInverting;
   });
 }
 
-- (void)imageAppliedSuccess:(BOOL)success {
+- (void)imageAppliedSuccess:(BOOL)success error:(NSError *)error {
   dispatch_async(dispatch_get_main_queue(), ^{
     if (!success) {
       self.imagingStage = ImagingStageError;
       self.percentComplete = 0;
-      self.lastError = self.error;
+      self.lastError = error;
     } else {
       self.imagingStage = ImagingStageComplete;
       self.percentComplete = 100;
