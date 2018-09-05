@@ -181,7 +181,7 @@
   uint64_t currBytes = self.progress.completedUnitCount;
   NSTimeInterval dt = currTime - self.startTime;
   NSString *throughput = @"";
-  if (dt > 0) {
+  if (dt > 1e-6) {
     throughput = [NSString stringWithFormat:@"(%@/sec)",
         [bf stringFromByteCount:(currBytes - self.startBytes) / dt]];
   }
