@@ -57,7 +57,7 @@
 
 - (NSString *)description {
   return [NSString stringWithFormat:@"bsd:%@, volName:%@, volKind:%@, whole:%d, "
-                                     "internal: %d, vendor: %@, model: %@",
+                                     "internal:%d, vendor:%@, model:%@",
                                     self.bsdName, self.volName, self.volKind, self.isWhole,
                                     self.isInternal, self.deviceVendor, self.deviceModel];
 }
