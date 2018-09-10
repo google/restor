@@ -30,6 +30,9 @@
 // How long to wait in seconds between successive config checks.
 @property(readonly) NSTimeInterval configCheckInterval;
 
+// Predicates used to filter connected disks.
+@property(readonly) NSArray<NSPredicate *> *diskFilterPredicates;
+
 // Download & parse config and validate image cache.
 - (NSError *)checkConfiguration;
 

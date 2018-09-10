@@ -33,5 +33,7 @@
 @property(readonly, nonatomic) BOOL isLeaf;
 @property(readonly, nonatomic) NSString *protocol;
 @property(readonly, nonatomic) NSNumber *diskSize;
+@property(readonly, nonatomic) NSString *deviceVendor;
+@property(readonly, nonatomic) NSString *deviceModel;
 
 @end
