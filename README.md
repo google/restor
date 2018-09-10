@@ -37,7 +37,9 @@ be downloaded again.
 
 # Example Configuration
 
-Restor has two configurable features: `ConfigURL` and `CustomImage`.
+Restor has a few configurable options, 1 of which is required. These can be
+specified using a local plist (stored at `/Library/Preferences/com.google.corp.restor.plist`)
+or using a Configuration Profile for the com.google.corp.restor domain.
 
 ### ConfigURL
 
@@ -77,6 +79,44 @@ __Optional__
 Set the `CustomImage` preference to toggle the use of a local custom image.
 
 `sudo defaults write /Library/Preferences/com.google.corp.restor.plist CustomImage -bool true`
+
+### ConfigCheckInterval
+
+__Optional__
+
+Set how often Restor should download and validate the image configuration in the background.
+Specified in seconds, defaults to 900 (15 minutes).
+
+`sudo defaults write /Library/Preferences/com.google.corp.restor.plist ConfigCheckInterval -int 600`
+
+### DiskFilterPredicate
+
+__Optional__
+
+Allows you to customize which disks will appear in the Restor UI (or that will
+be imaged automatically in auto-image mode). The default predicates, which
+cannot be overridden, will filter out internal disks and system volumes such
+as Recovery, VM, Preboot, etc. This key allows you to specify, using
+[NSPredicate](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Predicates/AdditionalChapters/Introduction.html#//apple_ref/doc/uid/TP40001789)
+other disks which should not be shown to the user. You can use any of the properties
+on the [Disk](https://github.com/google/restor/blob/master/Common/Disk.h#L26)
+object to create your predicate.
+
+Examples:
+
+* Filter out disks larger than 5TB:
+
+```shell
+sudo defaults write /Library/Preferences/com.google.corp.restor.plist DiskFilterPredicate -string \
+    (diskSize < 5497558138880)
+```
+
+* Filter out disks made by Seagate:
+
+```shell
+sudo defaults write /Library/Preferences/com.google.corp.restor.plist DiskFilterPredicate -string \
+    (deviceVendor != 'Seagate')
+```
 
 ## 10.13 and APFS Note
 

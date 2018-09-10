@@ -26,6 +26,7 @@ static NSString *kPreferenceDomain = @"com.google.corp.restor";
 static NSString *kConfigURLKey = @"ConfigURL";
 static NSString *kCustomImageKey = @"CustomImage";
 static NSString *kConfigCheckIntervalKey = @"ConfigCheckInterval";
+static NSString *kConfigDiskPredicateKey = @"DiskFilterPredicate";
 
 @class MOLXPCConnection;
 
@@ -45,8 +46,10 @@ static NSString *kConfigCheckIntervalKey = @"ConfigCheckInterval";
     self.session = [[[MOLAuthenticatingURLSession alloc] init] session];
     self.images = [NSArray array];
     self.defaults = [[NSUserDefaults alloc] initWithSuiteName:kPreferenceDomain];
-    // Set the default value for the config check interval to be 15 minutes.
-    [self.defaults registerDefaults:@{kConfigCheckIntervalKey: @(15*60.0)}];
+    [self.defaults registerDefaults:@{
+      // Set the default value for the config check interval to be 15 minutes.
+      kConfigCheckIntervalKey : @(15 * 60.0),
+    }];
   }
   return self;
 }
@@ -93,6 +96,28 @@ static NSString *kConfigCheckIntervalKey = @"ConfigCheckInterval";
   return [self doublePreferenceForKey:kConfigCheckIntervalKey];
 }
 
+- (NSArray<NSPredicate *> *)diskFilterPredicates {
+  // The default disk filter predicate:
+  //   No internal, whole or network disks
+  //   No 'Recovery HD', 'EFI' or 'Booter' volumes
+  //   No "virtual interface" disks (disk images)
+  //   No disks with empty BSD Names (disk0s2, etc.)
+  //   No APFS leaf disks
+  NSPredicate *defaultPredicate =
+      [NSPredicate predicateWithFormat:@"(NOT YES IN {isInternal, isWhole, isNetwork}) AND "
+                                        "(NOT mediaName IN {'Recovery HD', 'Booter'}) AND "
+                                        "(NOT volName IN {'EFI', 'Recovery', 'VM', 'Preboot'}) AND "
+                                        "(NOT protocol IN {'Virtual Interface'}) AND "
+                                        "(bsdName.length > 0) AND "
+                                        "(volKind != 'apfs' OR isLeaf = NO)"];
+  NSString *customPredicate = [self stringPreferenceForKey:kConfigDiskPredicateKey];
+  if (customPredicate.length) {
+    NSPredicate *p = [NSPredicate predicateWithFormat:customPredicate];
+    return @[ defaultPredicate, p ];
+  }
+  return @[ defaultPredicate ];
+}
+
 #pragma mark Configuration File
 
 // Returns an ordered set of images based on the given configuration dictionary.
@@ -120,28 +145,27 @@ static NSString *kConfigCheckIntervalKey = @"ConfigCheckInterval";
 
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);
 
-  [[self.session dataTaskWithURL:configURL completionHandler:^(NSData *data,
-                                                               NSURLResponse *response,
-                                                               NSError *e) {
-    if (e) {
-      error = [ErrorMaker errorWithCode:18
-                            description:@"Failed to download configuration"
-                                 reason:e.localizedDescription];
-      dispatch_semaphore_signal(sema);
-      return;
-    }
-    NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
-    if (statusCode != 200 || !data) {
-      NSString *reason = [NSString stringWithFormat:@"HTTP Error: %ld", statusCode];
-      error = [ErrorMaker errorWithCode:18
-                            description:@"Failed to download configuration"
-                                 reason:reason];
-      dispatch_semaphore_signal(sema);
-      return;
-    }
-    configData = data;
-    dispatch_semaphore_signal(sema);
-  }] resume];
+  [[self.session dataTaskWithURL:configURL
+               completionHandler:^(NSData *data, NSURLResponse *response, NSError *e) {
+                 if (e) {
+                   error = [ErrorMaker errorWithCode:18
+                                         description:@"Failed to download configuration"
+                                              reason:e.localizedDescription];
+                   dispatch_semaphore_signal(sema);
+                   return;
+                 }
+                 NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+                 if (statusCode != 200 || !data) {
+                   NSString *reason = [NSString stringWithFormat:@"HTTP Error: %ld", statusCode];
+                   error = [ErrorMaker errorWithCode:18
+                                         description:@"Failed to download configuration"
+                                              reason:reason];
+                   dispatch_semaphore_signal(sema);
+                   return;
+                 }
+                 configData = data;
+                 dispatch_semaphore_signal(sema);
+               }] resume];
 
   if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 10 * NSEC_PER_SEC))) {
     error = [ErrorMaker errorWithCode:19

@@ -23,7 +23,6 @@
 #import "CustomImageViewController.h"
 #import "Disk.h"
 #import "DiskWatcher.h"
-#import "DiskFilter.h"
 #import "DownloadImageViewController.h"
 #import "ImagingSession.h"
 #import "Image.h"
@@ -52,11 +51,10 @@
 - (void)viewDidLoad {
   self.connectedDisks = [NSMutableArray array];
   self.imagingSessions = [NSMutableDictionary dictionary];
-
-  [self createDiskWatcher];
 }
 
 - (void)viewDidAppear {
+  [self createDiskWatcher];
   self.selectedImage = self.configController.images.firstObject;
   [self selectedImageDidChange:self];
 }
@@ -68,7 +66,15 @@
 
   self.diskWatcher = [[DiskWatcher alloc] init];
   self.diskWatcher.appearCallback = ^(Disk *disk) {
-    if (![DiskFilter filterDisk:disk]) return;
+    STRONGIFY(self);
+    for (NSPredicate *p in self.configController.diskFilterPredicates) {
+      if (![p evaluateWithObject:disk]) {
+        if ([[[NSProcessInfo processInfo] arguments] containsObject:@"--debug-disk-filters"]) {
+          NSLog(@"Ignoring disk %@ because it didn't pass predicate: %@", disk, p);
+        }
+        return;
+      }
+    }
 
     dispatch_async(dispatch_get_main_queue(), ^{
       STRONGIFY(self);
@@ -81,7 +87,6 @@
       }
     });
 
-    STRONGIFY(self);
     if (self.autoImageMode) {
       [self imageDisk:disk];
     }

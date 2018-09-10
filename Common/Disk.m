@@ -29,6 +29,8 @@
     _mediaName = dict[(__bridge NSString *)kDADiskDescriptionMediaNameKey];
     _diskSize = dict[(__bridge NSString *)kDADiskDescriptionMediaSizeKey];
     _protocol = dict[(__bridge NSString *)kDADiskDescriptionDeviceProtocolKey];
+    _deviceVendor = dict[(__bridge NSString *)kDADiskDescriptionDeviceVendorKey];
+    _deviceModel = dict[(__bridge NSString *)kDADiskDescriptionDeviceModelKey];
     _isWhole = [dict[(__bridge NSString *)kDADiskDescriptionMediaWholeKey] boolValue];
     _isNetwork = [dict[(__bridge NSString *)kDADiskDescriptionVolumeNetworkKey] boolValue];
     _isInternal = [dict[(__bridge NSString *)kDADiskDescriptionDeviceInternalKey] boolValue];
@@ -53,6 +55,13 @@
   return result;
 }
 
+- (NSString *)description {
+  return [NSString stringWithFormat:@"bsd:%@, volName:%@, volKind:%@, whole:%d, "
+                                     "internal: %d, vendor: %@, model: %@",
+                                    self.bsdName, self.volName, self.volKind, self.isWhole,
+                                    self.isInternal, self.deviceVendor, self.deviceModel];
+}
+
 #pragma mark NSSecureCoding
 
 - (void)encodeWithCoder:(NSCoder *)coder {
@@ -62,6 +71,8 @@
   [coder encodeObject:self.mediaName forKey:@"mediaName"];
   [coder encodeObject:self.diskSize forKey:@"diskSize"];
   [coder encodeObject:self.protocol forKey:@"protocol"];
+  [coder encodeObject:self.deviceVendor forKey:@"deviceVendor"];
+  [coder encodeObject:self.deviceModel forKey:@"deviceModel"];
   [coder encodeObject:@(self.isWhole) forKey:@"isWhole"];
   [coder encodeObject:@(self.isNetwork) forKey:@"isNetwork"];
   [coder encodeObject:@(self.isInternal) forKey:@"isInternal"];
@@ -77,6 +88,8 @@
     _mediaName = [decoder decodeObjectOfClass:[NSString class] forKey:@"mediaName"];
     _diskSize = [decoder decodeObjectOfClass:[NSNumber class] forKey:@"diskSize"];
     _protocol = [decoder decodeObjectOfClass:[NSString class] forKey:@"protocol"];
+    _deviceVendor = [decoder decodeObjectOfClass:[NSString class] forKey:@"deviceVendor"];
+    _deviceModel = [decoder decodeObjectOfClass:[NSString class] forKey:@"deviceModel"];
     _isWhole = [[decoder decodeObjectOfClass:[NSNumber class] forKey:@"isWhole"] boolValue];
     _isNetwork = [[decoder decodeObjectOfClass:[NSNumber class] forKey:@"isNetwork"] boolValue];
     _isInternal = [[decoder decodeObjectOfClass:[NSNumber class] forKey:@"isInternal"] boolValue];

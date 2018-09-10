@@ -13,7 +13,6 @@
 		0D3AC19F1E4B82CA00915058 /* ImageNamedValueTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D3AC19E1E4B82CA00915058 /* ImageNamedValueTransformer.m */; };
 		0D3AC1A31E4BA81700915058 /* HelperToolUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D3AC1A21E4BA81700915058 /* HelperToolUtils.m */; };
 		0D3FEE471E48EFB100DCFDC3 /* App.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0D3FEE461E48EFB100DCFDC3 /* App.storyboard */; };
-		0D3FEE4A1E4911B900DCFDC3 /* DiskFilter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D3FEE491E4911B900DCFDC3 /* DiskFilter.m */; };
 		0D3FEE4D1E49233300DCFDC3 /* Image.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D3FEE4C1E49233300DCFDC3 /* Image.m */; };
 		0D7F80C01E4D064B004710F3 /* CollectionViewItemAvailable.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0D7F80BF1E4D064B004710F3 /* CollectionViewItemAvailable.xib */; };
 		0D7F80C41E4D07B3004710F3 /* DownloadImageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0D7F80C21E4D07B3004710F3 /* DownloadImageViewController.m */; };
@@ -84,8 +83,6 @@
 		0D3AC1A11E4BA81700915058 /* HelperToolUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelperToolUtils.h; sourceTree = "<group>"; };
 		0D3AC1A21E4BA81700915058 /* HelperToolUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelperToolUtils.m; sourceTree = "<group>"; };
 		0D3FEE461E48EFB100DCFDC3 /* App.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = App.storyboard; sourceTree = "<group>"; };
-		0D3FEE481E4911B900DCFDC3 /* DiskFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiskFilter.h; sourceTree = "<group>"; };
-		0D3FEE491E4911B900DCFDC3 /* DiskFilter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DiskFilter.m; sourceTree = "<group>"; };
 		0D3FEE4C1E49233300DCFDC3 /* Image.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Image.m; sourceTree = "<group>"; };
 		0D7F80BF1E4D064B004710F3 /* CollectionViewItemAvailable.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CollectionViewItemAvailable.xib; sourceTree = "<group>"; };
 		0D7F80C11E4D07B3004710F3 /* DownloadImageViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadImageViewController.h; sourceTree = "<group>"; };
@@ -200,8 +197,6 @@
 		0D3AC1A01E4BA74E00915058 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				0D3FEE481E4911B900DCFDC3 /* DiskFilter.h */,
-				0D3FEE491E4911B900DCFDC3 /* DiskFilter.m */,
 				0DE120A31DFF442700ABAC7E /* DiskWatcher.h */,
 				0DE120A41DFF442700ABAC7E /* DiskWatcher.m */,
 				0D7F80CD1E5104FA004710F3 /* HashUtils.h */,
@@ -492,7 +487,6 @@
 				0D1076501E48E1DE00336837 /* MainViewController.m in Sources */,
 				0D3AC19F1E4B82CA00915058 /* ImageNamedValueTransformer.m in Sources */,
 				0D7F80CC1E50FD5C004710F3 /* ConfigViewController.m in Sources */,
-				0D3FEE4A1E4911B900DCFDC3 /* DiskFilter.m in Sources */,
 				0DBB469F1E5E00EA001ABE71 /* ErrorMaker.m in Sources */,
 				8116002720DD945D00001B5F /* ConfigController.m in Sources */,
 				0D3AC1A31E4BA81700915058 /* HelperToolUtils.m in Sources */,
