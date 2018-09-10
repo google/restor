@@ -97,25 +97,33 @@ static NSString *kConfigDiskPredicateKey = @"DiskFilterPredicate";
 }
 
 - (NSArray<NSPredicate *> *)diskFilterPredicates {
-  // The default disk filter predicate:
-  //   No internal, whole or network disks
-  //   No 'Recovery HD', 'EFI' or 'Booter' volumes
-  //   No "virtual interface" disks (disk images)
+  // The default disk filter predicates:
   //   No disks with empty BSD Names (disk0s2, etc.)
+  //   No internal, whole or network disks
+  //   No 'Recovery HD' or 'Booter' volumes
+  //   No EFI, Preboot, Recovery or VM volumes
+  //   No "virtual interface" disks (disk images)
   //   No APFS leaf disks
-  NSPredicate *defaultPredicate =
-      [NSPredicate predicateWithFormat:@"(NOT YES IN {isInternal, isWhole, isNetwork}) AND "
-                                        "(NOT mediaName IN {'Recovery HD', 'Booter'}) AND "
-                                        "(NOT volName IN {'EFI', 'Recovery', 'VM', 'Preboot'}) AND "
-                                        "(NOT protocol IN {'Virtual Interface'}) AND "
-                                        "(bsdName.length > 0) AND "
-                                        "(volKind != 'apfs' OR isLeaf = NO)"];
+  NSArray *defaultPredicates = @[
+    @"bsdName.length > 0",
+    @"NOT YES IN {isInternal, isWhole, isNetwork}",
+    @"NOT mediaName IN {'Recovery HD', 'Booter'}",
+    @"NOT volName IN {'EFI', 'Preboot', 'Recovery', 'VM'}",
+    @"NOT protocol IN {'Virtual Interface'}",
+    @"volKind != 'apfs' OR isLeaf = NO",
+  ];
+
+  NSMutableArray *predicates = [NSMutableArray array];
+  for (NSString *p in defaultPredicates) {
+    [predicates addObject:[NSPredicate predicateWithFormat:p]];
+  }
+
   NSString *customPredicate = [self stringPreferenceForKey:kConfigDiskPredicateKey];
   if (customPredicate.length) {
-    NSPredicate *p = [NSPredicate predicateWithFormat:customPredicate];
-    return @[ defaultPredicate, p ];
+    [predicates addObject:[NSPredicate predicateWithFormat:customPredicate]];
   }
-  return @[ defaultPredicate ];
+
+  return predicates;
 }
 
 #pragma mark Configuration File
