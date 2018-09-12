@@ -102,20 +102,29 @@ other disks which should not be shown to the user. You can use any of the proper
 on the [Disk](https://github.com/google/restor/blob/master/Common/Disk.h#L26)
 object to create your predicate.
 
+You can also pass the `--debug-disk-filters` flag to Restor.app to see what effects the predicate is having.
+
 Examples:
 
 * Filter out disks larger than 5TB:
 
 ```shell
 sudo defaults write /Library/Preferences/com.google.corp.restor.plist DiskFilterPredicate -string \
-    (diskSize < 5497558138880)
+    "(diskSize < 5497558138880)"
 ```
 
 * Filter out disks made by Seagate:
 
 ```shell
 sudo defaults write /Library/Preferences/com.google.corp.restor.plist DiskFilterPredicate -string \
-    (deviceVendor != 'Seagate')
+    "(deviceVendor != 'Seagate')"
+```
+
+* Filter out disks by their id:
+
+```shell
+sudo defaults write /Library/Preferences/com.google.corp.restor.plist DiskFilterPredicate -string \
+    "(bsdName != 'disk3s2')"
 ```
 
 ## 10.13 and APFS Note
