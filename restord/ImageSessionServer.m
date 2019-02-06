@@ -12,15 +12,15 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "ImageSessionServer.h"
+#import "restord/ImageSessionServer.h"
 
-@import DiskArbitration;
+#import <DiskArbitration/DiskArbitration.h>
 
 #import <MOLXPCConnection/MOLXPCConnection.h>
 
-#import "Disk.h"
-#import "Image.h"
-#import "RestorProtocol.h"
+#import "Common/Disk.h"
+#import "Common/Image.h"
+#import "Common/RestorProtocol.h"
 
 NSString * const kImageInfo = @"/Library/Preferences/com.google.corp.imageinfo.plist";
 

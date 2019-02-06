@@ -12,7 +12,7 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-@import Foundation;
+#import <Foundation/Foundation.h>
 
 @class Disk;
 
@@ -34,6 +34,5 @@
 
 /// Callback when a mount needs approval. Returning NO prevents the mount.
 @property(nonatomic, copy) BOOL (^mountApprovalCallback)(Disk *disk);
-
 
 @end

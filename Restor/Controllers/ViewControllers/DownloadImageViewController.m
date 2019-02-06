@@ -12,15 +12,15 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "DownloadImageViewController.h"
+#import "Restor/Controllers/ViewControllers/DownloadImageViewController.h"
 
 #import <CommonCrypto/CommonDigest.h>
 
 #import <MOLAuthenticatingURLSession/MOLAuthenticatingURLSession.h>
 #import <MOLXPCConnection/MOLXPCConnection.h>
 
-#import "HashUtils.h"
-#import "Image.h"
+#import "Common/Image.h"
+#import "Restor/Utilities/HashUtils.h"
 
 @interface DownloadImageViewController ()
 @property(readwrite, nonatomic) BOOL isPausable;

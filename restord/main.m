@@ -12,14 +12,14 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-@import Foundation;
+#import <Foundation/Foundation.h>
 
 #import <MOLXPCConnection/MOLXPCConnection.h>
 
-#import "Daemon.h"
-#import "RestorProtocol.h"
+#import "Common/RestorProtocol.h"
+#import "restord/Daemon.h"
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char *argv[]) {
   @autoreleasepool {
     MOLXPCConnection *xpcListener =
         [[MOLXPCConnection alloc] initServerWithName:@"com.google.corp.restord"];

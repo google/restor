@@ -12,13 +12,13 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "ImagingSession.h"
+#import "Restor/Model/ImagingSession.h"
 
 #import <MOLXPCConnection/MOLXPCConnection.h>
 
-#import "Disk.h"
-#import "Image.h"
-#import "RestorProtocol.h"
+#import "Common/Disk.h"
+#import "Common/Image.h"
+#import "Common/RestorProtocol.h"
 
 @interface ImagingSession ()
 @property Disk *disk;

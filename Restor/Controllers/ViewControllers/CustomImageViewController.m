@@ -12,8 +12,9 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "CustomImageViewController.h"
-#import "Image.h"
+#import "Restor/Controllers/ViewControllers/CustomImageViewController.h"
+
+#import "Common/Image.h"
 
 @implementation CustomImageViewController
 

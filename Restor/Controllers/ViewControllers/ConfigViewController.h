@@ -12,7 +12,7 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-@import Cocoa;
+#import <Cocoa/Cocoa.h>
 
 /// ConfigViewController creates a ConfigController and displays the process of downloading and
 /// parsing a configuration plist and verifying the state of cached images, deleting previously

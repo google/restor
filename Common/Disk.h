@@ -12,7 +12,7 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-@import Foundation;
+#import <Foundation/Foundation.h>
 
 ///  Disk represents a disk based on a dictionary provided by the DiskArbitration.framework.
 @interface Disk : NSObject<NSSecureCoding>

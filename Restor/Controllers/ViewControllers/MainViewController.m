@@ -12,20 +12,20 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "MainViewController.h"
+#import "Restor/Controllers/ViewControllers/MainViewController.h"
 
 #import <MOLXPCConnection/MOLXPCConnection.h>
 
-#import "AutoImageWarningViewController.h"
-#import "CollectionViewItemAvailable.h"
-#import "CollectionViewItemImaging.h"
-#import "ConfigController.h"
-#import "CustomImageViewController.h"
-#import "Disk.h"
-#import "DiskWatcher.h"
-#import "DownloadImageViewController.h"
-#import "ImagingSession.h"
-#import "Image.h"
+#import "Common/Disk.h"
+#import "Common/Image.h"
+#import "Restor/Controllers/ViewControllers/AutoImageWarningViewController.h"
+#import "Restor/Controllers/ViewControllers/CollectionViewItemAvailable.h"
+#import "Restor/Controllers/ViewControllers/CollectionViewItemImaging.h"
+#import "Restor/Controllers/ViewControllers/CustomImageViewController.h"
+#import "Restor/Controllers/ViewControllers/DownloadImageViewController.h"
+#import "Restor/Model/ConfigController.h"
+#import "Restor/Model/ImagingSession.h"
+#import "Restor/Utilities/DiskWatcher.h"
 
 @interface MainViewController ()
 
@@ -40,7 +40,7 @@
 @property BOOL autoImageMode;
 @property BOOL showCachedCheckmark;
 @property BOOL showDownloadButton;
-@property NSDate* lastConfigCheck;
+@property NSDate *lastConfigCheck;
 
 - (IBAction)selectedImageDidChange:(id)sender;
 
@@ -90,7 +90,6 @@
     if (self.autoImageMode) {
       [self imageDisk:disk];
     }
-
   };
   self.diskWatcher.disappearCallback = ^(Disk *disk) {
     STRONGIFY(self);
@@ -114,7 +113,6 @@
       // Do this after the UI updates to avoid breaking KVO.
       [is cancel];
     }
-
   };
   [self.diskWatcher beginWatching];
 }
@@ -128,8 +126,7 @@
     self.showDownloadButton = NO;
   } else {
     if (!self.selectedImage.localURL) {
-      self.selectedImage.localURL =
-          [self.configController localPathForImage:self.selectedImage];
+      self.selectedImage.localURL = [self.configController localPathForImage:self.selectedImage];
     }
     if ([self.selectedImage.localURL checkResourceIsReachableAndReturnError:NULL]) {
       self.showCachedCheckmark = YES;
@@ -172,7 +169,7 @@
   if (!self.selectedImage.localURL) {
     self.selectedImage.localURL = [self.configController localPathForImage:self.selectedImage];
   }
-  [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[self.selectedImage.localURL]];
+  [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ self.selectedImage.localURL ]];
 }
 
 #pragma mark Collection View Data Source/Delegate

@@ -12,12 +12,12 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "ConfigViewController.h"
+#import "Restor/Controllers/ViewControllers/ConfigViewController.h"
 
 #import <MOLAuthenticatingURLSession/MOLAuthenticatingURLSession.h>
 
-#import "ConfigController.h"
-#import "MainViewController.h"
+#import "Restor/Controllers/ViewControllers/MainViewController.h"
+#import "Restor/Model/ConfigController.h"
 
 @class MOLXPCConnection;
 
