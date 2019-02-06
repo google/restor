@@ -28,8 +28,8 @@
             toDisk:(Disk *)targetDisk
       withListener:(NSXPCListenerEndpoint *)listener {
   if (!image || !targetDisk || !listener) {
-    NSLog(@"Client sent invalid %@ message: %@ %@ %@. Ignoring.", NSStringFromSelector(_cmd), image,
-          targetDisk, listener);
+    NSLog(@"Client sent invalid %@ message: %@ %@ %@. Ignoring.",
+          NSStringFromSelector(_cmd), image, targetDisk, listener);
     return;
   };
 
