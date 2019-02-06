@@ -24,21 +24,18 @@ git_repository(
 
 git_repository(
     name = "MOLCertificate",
-    remote =
-        "https://github.com/google/macops-molcertificate.git",
+    remote = "https://github.com/google/macops-molcertificate.git",
     tag = "v2.0",
 )
 
 git_repository(
     name = "MOLCodesignChecker",
-    remote =
-        "https://github.com/google/macops-molcodesignchecker.git",
+    remote = "https://github.com/google/macops-molcodesignchecker.git",
     tag = "v2.0",
 )
 
 git_repository(
     name = "MOLXPCConnection",
-    remote =
-        "https://github.com/google/macops-molxpcconnection.git",
+    remote = "https://github.com/google/macops-molxpcconnection.git",
     tag = "v2.0",
 )
