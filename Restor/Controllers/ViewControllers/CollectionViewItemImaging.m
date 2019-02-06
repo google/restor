@@ -12,10 +12,10 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "CollectionViewItemImaging.h"
+#import "Restor/Controllers/ViewControllers/CollectionViewItemImaging.h"
 
-#import "Disk.h"
-#import "ImagingSession.h"
+#import "Common/Disk.h"
+#import "Restor/Model/ImagingSession.h"
 
 // The percentage of the progress bar is dedicated to the imaging phase. The rest is 'verifying'
 static const float kImagingRatioOfTotal = 0.85;

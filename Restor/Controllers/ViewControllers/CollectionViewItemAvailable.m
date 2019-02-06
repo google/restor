@@ -12,7 +12,7 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "CollectionViewItemAvailable.h"
+#import "Restor/Controllers/ViewControllers/CollectionViewItemAvailable.h"
 
 // The border width for a selected disk in the collection view
 static const float kSelectedBorderWidth = 3.0;

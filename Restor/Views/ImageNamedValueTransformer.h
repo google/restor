@@ -12,7 +12,7 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-@import Cocoa;
+#import <Cocoa/Cocoa.h>
 
 /// An extremely simple value trasnformer that returns an NSImage
 /// using [NSImage imageNamed:] using the input value as the name.

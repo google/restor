@@ -12,14 +12,14 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "HelperToolUtils.h"
+#import "Restor/Utilities/HelperToolUtils.h"
 
 #import <ServiceManagement/ServiceManagement.h>
 
 #import <MOLXPCConnection/MOLXPCConnection.h>
 
-#import "ErrorMaker.h"
-#import "RestorProtocol.h"
+#import "Common/RestorProtocol.h"
+#import "Restor/Utilities/ErrorMaker.h"
 
 static NSString *const kHelperToolLabel = @"com.google.corp.restord";
 

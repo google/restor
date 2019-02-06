@@ -12,7 +12,9 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "Disk.h"
+#import "Common/Disk.h"
+
+#import <DiskArbitration/DADisk.h>
 
 @implementation Disk
 

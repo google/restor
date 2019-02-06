@@ -12,12 +12,11 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "Daemon.h"
+#import "restord/Daemon.h"
 
 #import <MOLXPCConnection/MOLXPCConnection.h>
 
-#import "ImageSessionServer.h"
-
+#import "restord/ImageSessionServer.h"
 
 @implementation Daemon
 
@@ -29,8 +28,8 @@
             toDisk:(Disk *)targetDisk
       withListener:(NSXPCListenerEndpoint *)listener {
   if (!image || !targetDisk || !listener) {
-    NSLog(@"Client sent invalid %@ message: %@ %@ %@. Ignoring.",
-          NSStringFromSelector(_cmd), image, targetDisk, listener);
+    NSLog(@"Client sent invalid %@ message: %@ %@ %@. Ignoring.", NSStringFromSelector(_cmd), image,
+          targetDisk, listener);
     return;
   };
 

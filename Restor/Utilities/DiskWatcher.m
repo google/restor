@@ -12,11 +12,11 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "DiskWatcher.h"
+#import "Restor/Utilities/DiskWatcher.h"
 
-#import "Disk.h"
+#import "Common/Disk.h"
 
-@import DiskArbitration;
+#import <DiskArbitration/DiskArbitration.h>
 
 @interface DiskWatcher ()
 @property DASessionRef daSession;

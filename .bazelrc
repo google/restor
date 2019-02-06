@@ -1,0 +1,1 @@
+common --ios_signing_cert_name="replace with your signing cert common name"

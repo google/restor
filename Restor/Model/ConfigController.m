@@ -12,15 +12,15 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "ConfigController.h"
+#import "Restor/Model/ConfigController.h"
 
 #import <MOLAuthenticatingURLSession/MOLAuthenticatingURLSession.h>
 
-#import "ErrorMaker.h"
-#import "HashUtils.h"
-#import "HelperToolUtils.h"
-#import "Image.h"
-#import "MainViewController.h"
+#import "Common/Image.h"
+#import "Restor/Controllers/ViewControllers/MainViewController.h"
+#import "Restor/Utilities/ErrorMaker.h"
+#import "Restor/Utilities/HashUtils.h"
+#import "Restor/Utilities/HelperToolUtils.h"
 
 static NSString *kPreferenceDomain = @"com.google.corp.restor";
 static NSString *kConfigURLKey = @"ConfigURL";

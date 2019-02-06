@@ -12,7 +12,7 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "ImageNamedValueTransformer.h"
+#import "Restor/Views/ImageNamedValueTransformer.h"
 
 @implementation ImageNamedValueTransformer
 
@@ -26,7 +26,7 @@
 
 - (id)transformedValue:(id)value {
   if (!value) return nil;
-  if (! [value isKindOfClass:[NSString class]]) {
+  if (![value isKindOfClass:[NSString class]]) {
     @throw [NSException exceptionWithName:@"ImageNamedValueTransformerInvalidInput"
                                    reason:@"ImageNamedValueTransformer only transforms strings"
                                  userInfo:nil];
