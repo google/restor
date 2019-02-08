@@ -19,6 +19,7 @@
 - (instancetype)initWithDictionary:(NSDictionary *)dict {
   self = [super init];
   if (self) {
+    // TODO(bur): Validate keys / values before using.
     _name = dict[@"Name"];
     _URL = [NSURL URLWithString:dict[@"URL"]];
     if (!_URL.scheme && _URL) {
@@ -27,6 +28,8 @@
     _sha256 = dict[@"SHA-256"];
     _sha512 = dict[@"SHA-512"];
     _custom = [dict[@"Custom"] boolValue];
+    _postScript = dict[@"Post Script"];
+    _postScriptMustSucceed = [dict[@"Post Script Must Succeed"] boolValue];
   }
   return self;
 }
@@ -40,6 +43,8 @@
   [coder encodeObject:self.sha512 forKey:@"sha512"];
   [coder encodeObject:self.localURL forKey:@"localURL"];
   [coder encodeObject:@(self.custom) forKey:@"custom"];
+  [coder encodeObject:self.postScript forKey:@"postScript"];
+  [coder encodeObject:@(self.postScriptMustSucceed) forKey:@"postScriptMustSucceed"];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)decoder {
@@ -51,6 +56,9 @@
     _sha512 = [decoder decodeObjectOfClass:[NSString class] forKey:@"sha512"];
     _localURL = [decoder decodeObjectOfClass:[NSURL class] forKey:@"localURL"];
     _custom = [[decoder decodeObjectOfClass:[NSNumber class] forKey:@"custom"] boolValue];
+    _postScript = [decoder decodeObjectOfClass:[NSString class] forKey:@"postScript"];
+    _postScriptMustSucceed =
+        [[decoder decodeObjectOfClass:[NSNumber class] forKey:@"postScriptMustSucceed"] boolValue];
   }
   return self;
 }
@@ -67,6 +75,7 @@
 
 - (BOOL)isEqualToImage:(Image *)image {
   // Two images are considered equal if they have the same name and same stored checksums.
+  // Note the post script properties are not used for equality.
   if (![self.name isEqualToString:image.name]) return NO;
   if ((self.sha256 || image.sha256) && ![self.sha256 isEqualToString:image.sha256]) return NO;
   if ((self.sha512 || image.sha512) && ![self.sha512 isEqualToString:image.sha512]) return NO;

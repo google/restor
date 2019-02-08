@@ -74,6 +74,11 @@
 - (void)invertingStarted;
 
 /*
+  Notifies the UI that the post script has started.
+*/
+- (void)postScriptStarted;
+
+/*
   Notifies the UI that imaging has completed and ASR has exited.
 
   @param success YES if ASR exited with 0.

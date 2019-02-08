@@ -85,6 +85,12 @@
   });
 }
 
+- (void)postScriptStarted {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    self.imagingStage = ImagingStagePostScript;
+  });
+}
+
 - (void)imageAppliedSuccess:(BOOL)success error:(NSError *)error {
   dispatch_async(dispatch_get_main_queue(), ^{
     if (!success) {

@@ -110,34 +110,61 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
   int asrReturnCode = [self applyImage];
   NSLog(@"%@ ASR exit code: %d", self, asrReturnCode);
 
-  NSError *err;
-  if (asrReturnCode == 0) {
-    DADiskRef disk = NULL;
-
-    // Get the synthesized "Macintosh HD" apfs disk, if any.
-    NSString *apfsOSDisk = [self apfsOSDisk];
-    if (apfsOSDisk) {
-      NSString *apfsBootDisk = [NSString stringWithFormat:@"/dev/%@", apfsOSDisk];
-      disk = DADiskCreateFromBSDName(NULL, self.diskArbSession, apfsBootDisk.UTF8String);
-    }
-
-    NSURL *mountURL = [self mountDisk:disk ?: self.diskRef];
-    if (mountURL) {
-      NSLog(@"%@ Remounted target %@ as %@", self, self.destination.path, mountURL.path);
-      [self applyImageInfo:mountURL];
-      [self blessMountURL:mountURL];
-      [self unmountDisk:disk ?: self.diskRef];
-    } else {
-      NSLog(@"%@ Unable to remount target, skipping imaginfo.plist application", self);
-    }
-
-    if (disk) CFRelease(disk);
-  } else {
-    err = [self constructErrorFromReturnCode:asrReturnCode];
+  if (asrReturnCode != 0) {
+    NSError *err = [self constructErrorFromReturnCode:asrReturnCode];
+    [[self.client remoteObjectProxy] imageAppliedSuccess:NO error:err];
+    return;
   }
 
-  // Send final reply with task status.
-  [[self.client remoteObjectProxy] imageAppliedSuccess:(asrReturnCode == 0) error:err];
+  // Get the synthesized "Macintosh HD" apfs disk, if any.
+  DADiskRef disk = NULL;
+  NSString *apfsOSDisk = [self apfsOSDisk];
+  if (apfsOSDisk) {
+    NSString *apfsBootDisk = [NSString stringWithFormat:@"/dev/%@", apfsOSDisk];
+    disk = DADiskCreateFromBSDName(NULL, self.diskArbSession, apfsBootDisk.UTF8String);
+  }
+  NSURL *mountURL = [self mountDisk:disk ?: self.diskRef];
+
+  // Fail if the disk would not mount and the post script is required.
+  // Succeed if the disk would not mount and the post script is not required.
+  // Otherwise continue on.
+  if (!mountURL && self.image.postScript && self.image.postScriptMustSucceed) {
+    NSString *s = @"Unable to remount target and the post script must succeed!";
+    NSDictionary *info = @{ NSLocalizedDescriptionKey: s };
+    NSError *err = [NSError errorWithDomain:@"com.google.corp.restord" code:777 userInfo:info];
+    [[self.client remoteObjectProxy] imageAppliedSuccess:NO error:err];
+    if (disk) CFRelease(disk);
+    return;
+  } else if (!mountURL)  {
+    NSLog(@"%@ Unable to remount target, skipping imaginfo.plist and post script", self);
+    [[self.client remoteObjectProxy] imageAppliedSuccess:YES error:nil];
+    if (disk) CFRelease(disk);
+    return;
+  }
+
+  NSLog(@"%@ Remounted target %@ as %@", self, self.destination.path, mountURL.path);
+
+  // Lay down the image info first so the post script can use the data.
+  [self applyImageInfo:mountURL];
+
+  // Run the post script.
+  // Fail if the post script failed and the post script is required.
+  if (self.image.postScript) {
+    [[self.client remoteObjectProxy] postScriptStarted];
+    NSError *err;
+    if ([self runPostScriptWithMountURL:mountURL error:&err] != 0 &&
+        self.image.postScriptMustSucceed) {
+      [[self.client remoteObjectProxy] imageAppliedSuccess:NO error:err];
+      if (disk) CFRelease(disk);
+      return;
+    }
+  }
+
+  // Finish up.
+  [self blessMountURL:mountURL];
+  [self unmountDisk:disk ?: self.diskRef];
+  if (disk) CFRelease(disk);
+  [[self.client remoteObjectProxy] imageAppliedSuccess:YES error:nil];
 }
 
 - (NSError *)constructErrorFromReturnCode:(int)code {
@@ -326,7 +353,7 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
 }
 
 // Mount the given disk at a temporary location, returning the mount location.
-// May take up to 5 seconds.
+// May take up to 60 seconds.
 - (NSURL *)mountDisk:(DADiskRef)disk {
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);
   NSString *uuid = [[NSProcessInfo processInfo] globallyUniqueString];
@@ -338,7 +365,7 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
                                                  error:NULL];
   DADiskMount(disk, (__bridge CFURLRef)directoryURL, 0,
               &MountUnmountCallback, (__bridge void *)sema);
-  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC))) {
+  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 60 * NSEC_PER_SEC))) {
     NSLog(@"%@ Timed out while mounting disk", self);
     return nil;
   }
@@ -397,6 +424,59 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
   [bless launch];
   [bless waitUntilExit];
   if (bless.terminationStatus != 0) NSLog(@"%@ Failed to bless: %@", self, mountURL.path);
+}
+
+- (int)runPostScriptWithMountURL:(NSURL *)mountURL error:(NSError **)error {
+  if (!self.image.postScript) return 0;
+
+  NSString *uuid = [[NSProcessInfo processInfo] globallyUniqueString];
+  NSString *path = [NSTemporaryDirectory() stringByAppendingPathComponent:uuid];
+  NSURL *directoryURL = [NSURL fileURLWithPath:path isDirectory:YES];
+
+  NSError *err;
+  NSFileManager *fm = [NSFileManager defaultManager];
+  if (![fm createDirectoryAtURL:directoryURL
+    withIntermediateDirectories:YES
+                     attributes:nil
+                          error:&err]) {
+    if (error) *error = err;
+    return 1;
+  }
+
+  NSString *postscript = [directoryURL.path stringByAppendingPathComponent:@"postscript"];
+  if (![self.image.postScript writeToFile:postscript
+                               atomically:YES
+                                 encoding:NSUTF8StringEncoding
+                                    error:&err]) {
+    if (error) *error = err;
+    return 1;
+  }
+
+  if (![fm setAttributes:@{ NSFilePosixPermissions : @0755 } ofItemAtPath:postscript error:&err]) {
+    if (error) *error = err;
+    return 1;
+  }
+
+  NSTask *script = [[NSTask alloc] init];
+  script.launchPath = postscript;
+  script.arguments = @[ mountURL.path ];
+  script.standardError = [NSPipe pipe];
+
+  NSLog(@"%@ Launching post script: %@", self, postscript);
+
+  [script launch];
+  [script waitUntilExit];
+
+  NSData *data = [script.standardError fileHandleForReading].availableData;
+  NSString *standardError = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+  if (standardError.length && error) {
+    NSDictionary *info = @{ NSLocalizedDescriptionKey: standardError };
+    *error = [NSError errorWithDomain:@"com.google.corp.restord" code:666 userInfo:info];
+  }
+
+  [fm removeItemAtPath:postscript error:NULL];
+
+  return script.terminationStatus;
 }
 
 @end
