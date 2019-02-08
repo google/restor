@@ -436,7 +436,7 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
   NSError *err;
   NSFileManager *fm = [NSFileManager defaultManager];
 
-  // Paranoid about privleged escalation. If the dir already exists, really remove it.
+  // Paranoid about privileged escalation. If the dir already exists, really remove it.
   BOOL isDir = NO;
   if ([fm fileExistsAtPath:directoryURL.path isDirectory:&isDir] && isDir) {
     if (![fm removeItemAtURL:directoryURL error:&err]) {

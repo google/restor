@@ -79,13 +79,9 @@
   if (![self.name isEqualToString:image.name]) return NO;
   if ((self.sha256 || image.sha256) && ![self.sha256 isEqualToString:image.sha256]) return NO;
   if ((self.sha512 || image.sha512) && ![self.sha512 isEqualToString:image.sha512]) return NO;
-  if ((self.postScript || image.postScript) &&
-      ![self.postScript isEqualToString:image.postScript]) {
-    return NO;
-  }
-  if ((self.postScript || image.postScript) &&
-      self.postScriptMustSucceed != image.postScriptMustSucceed) {
-    return NO;
+  if (self.postScript || image.postScript) {
+    if (![self.postScript isEqualToString:image.postScript]) return NO;
+    if (self.postScriptMustSucceed != image.postScriptMustSucceed) return NO;
   }
   return YES;
 }
