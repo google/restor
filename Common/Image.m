@@ -75,10 +75,18 @@
 
 - (BOOL)isEqualToImage:(Image *)image {
   // Two images are considered equal if they have the same name and same stored checksums.
-  // Note the post script properties are not used for equality.
+  // Additionally the post script properties are used for equality.
   if (![self.name isEqualToString:image.name]) return NO;
   if ((self.sha256 || image.sha256) && ![self.sha256 isEqualToString:image.sha256]) return NO;
   if ((self.sha512 || image.sha512) && ![self.sha512 isEqualToString:image.sha512]) return NO;
+  if ((self.postScript || image.postScript) &&
+      ![self.postScript isEqualToString:image.postScript]) {
+    return NO;
+  }
+  if ((self.postScript || image.postScript) &&
+      self.postScriptMustSucceed != image.postScriptMustSucceed) {
+    return NO;
+  }
   return YES;
 }
 

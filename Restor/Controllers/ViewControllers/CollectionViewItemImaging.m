@@ -43,10 +43,10 @@ static const float kImagingRatioOfTotal = 0.85;
       return NSLocalizedString(@"Imaging...", nil);
     case ImagingStageInverting:
       return NSLocalizedString(@"Inverting...", nil);
-    case ImagingStagePostScript:
-      return NSLocalizedString(@"Running post script...", nil);
     case ImagingStageVerifying:
       return NSLocalizedString(@"Verifying...", nil);
+    case ImagingStagePostScript:
+      return NSLocalizedString(@"Running post script...", nil);
     case ImagingStageComplete:
       return NSLocalizedString(@"Complete,\nplease disconnect", nil);
     case ImagingStageError:
@@ -61,9 +61,9 @@ static const float kImagingRatioOfTotal = 0.85;
       return 0.0;
     case ImagingStageImaging:
     case ImagingStageInverting:
-    case ImagingStagePostScript:
       return self.imagingSession.percentComplete * kImagingRatioOfTotal;
     case ImagingStageVerifying:
+    case ImagingStagePostScript:
       return (kImagingRatioOfTotal * 100) +
           self.imagingSession.percentComplete * (1.0 - kImagingRatioOfTotal);
     case ImagingStageComplete:

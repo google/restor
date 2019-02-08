@@ -33,8 +33,8 @@ typedef NS_ENUM(NSInteger, ImagingStage) {
   ImagingStageNotStarted,
   ImagingStageImaging,
   ImagingStageInverting,
-  ImagingStagePostScript,
   ImagingStageVerifying,
+  ImagingStagePostScript,
   ImagingStageComplete,
   ImagingStageError,
 };

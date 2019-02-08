@@ -128,16 +128,16 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
   // Fail if the disk would not mount and the post script is required.
   // Succeed if the disk would not mount and the post script is not required.
   // Otherwise continue on.
-  if (!mountURL && self.image.postScript && self.image.postScriptMustSucceed) {
-    NSString *s = @"Unable to remount target and the post script must succeed!";
-    NSDictionary *info = @{ NSLocalizedDescriptionKey: s };
-    NSError *err = [NSError errorWithDomain:@"com.google.corp.restord" code:777 userInfo:info];
-    [[self.client remoteObjectProxy] imageAppliedSuccess:NO error:err];
-    if (disk) CFRelease(disk);
-    return;
-  } else if (!mountURL)  {
-    NSLog(@"%@ Unable to remount target, skipping imaginfo.plist and post script", self);
-    [[self.client remoteObjectProxy] imageAppliedSuccess:YES error:nil];
+  if (!mountURL) {
+    if (self.image.postScript && self.image.postScriptMustSucceed) {
+      NSString *s = @"Unable to remount target and the post script must succeed!";
+      NSDictionary *info = @{ NSLocalizedDescriptionKey: s };
+      NSError *err = [NSError errorWithDomain:@"com.google.corp.restord" code:777 userInfo:info];
+      [[self.client remoteObjectProxy] imageAppliedSuccess:NO error:err];
+    } else {
+      NSLog(@"%@ Unable to remount target, skipping imaginfo.plist and post script", self);
+      [[self.client remoteObjectProxy] imageAppliedSuccess:YES error:nil];
+    }
     if (disk) CFRelease(disk);
     return;
   }
@@ -435,6 +435,16 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
 
   NSError *err;
   NSFileManager *fm = [NSFileManager defaultManager];
+
+  // Paranoid about privleged escalation. If the dir already exists, really remove it.
+  BOOL isDir = NO;
+  if ([fm fileExistsAtPath:directoryURL.path isDirectory:&isDir] && isDir) {
+    if (![fm removeItemAtURL:directoryURL error:&err]) {
+      if (error) *error = err;
+      return 1;
+    }
+  }
+
   if (![fm createDirectoryAtURL:directoryURL
     withIntermediateDirectories:YES
                      attributes:nil
@@ -452,7 +462,7 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
     return 1;
   }
 
-  if (![fm setAttributes:@{ NSFilePosixPermissions : @0755 } ofItemAtPath:postscript error:&err]) {
+  if (![fm setAttributes:@{ NSFilePosixPermissions : @0700 } ofItemAtPath:postscript error:&err]) {
     if (error) *error = err;
     return 1;
   }
@@ -474,7 +484,7 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
     *error = [NSError errorWithDomain:@"com.google.corp.restord" code:666 userInfo:info];
   }
 
-  [fm removeItemAtPath:postscript error:NULL];
+  [fm removeItemAtURL:directoryURL error:NULL];
 
   return script.terminationStatus;
 }
