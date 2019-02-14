@@ -22,22 +22,30 @@
 
 - (instancetype)init NS_UNAVAILABLE;
 
-/// The name of this image configuration
+/// The name of this image configuration.
 @property(readonly, nonatomic) NSString *name;
 
-/// The URL to download this image from
+/// The URL to download this image from.
 @property(readonly, nonatomic) NSURL *URL;
 
-/// The SHA-256 hash of this image
+/// The SHA-256 hash of this image.
 @property(readonly, nonatomic) NSString *sha256;
 
-/// The SHA-512 hash of this image
+/// The SHA-512 hash of this image.
 @property(readonly, nonatomic) NSString *sha512;
 
-/// The URL of the image on disk, if it exists
+/// The URL of the image on disk, if it exists.
 @property NSURL *localURL;
 
-/// Whether or not this image is a custom image specifed by the user
+/// Whether or not this image is a custom image specified by the user.
 @property(readonly, nonatomic) BOOL custom;
+
+/// A script that is run after the image is applied. The imaged volume is mounted and passed
+/// as an argument to the script.
+@property(readonly, nonatomic) NSString *postScript;
+
+/// If set to YES, the post script must succeed for the image to be considered complete
+/// Defaults to NO.
+@property(readonly, nonatomic) BOOL postScriptMustSucceed;
 
 @end

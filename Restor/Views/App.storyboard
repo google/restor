@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14113" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="0Ft-3G-S3r">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="14460.31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="0Ft-3G-S3r">
     <dependencies>
-        <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14113"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="14460.31"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
-        <capability name="system font weights other than Regular or Bold" minToolsVersion="7.0"/>
     </dependencies>
     <scenes>
         <!--Application-->
@@ -135,7 +133,7 @@
         <scene sceneID="hbh-4m-u9g">
             <objects>
                 <windowController showSeguePresentationStyle="single" id="0Ft-3G-S3r" sceneMemberID="viewController">
-                    <window key="window" title="Restor" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="kcr-kv-Psp">
+                    <window key="window" title="Restor" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="kcr-kv-Psp">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
                         <rect key="contentRect" x="2795" y="461" width="600" height="400"/>
                         <rect key="screenRect" x="2560" y="0.0" width="2560" height="1418"/>
@@ -177,12 +175,12 @@
                             <progressIndicator wantsLayer="YES" maxValue="100" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="etC-Hw-gmU">
                                 <rect key="frame" x="86" y="177" width="428" height="32"/>
                                 <connections>
-                                    <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="ES6-cY-kxW">
+                                    <binding destination="3AT-TD-MnR" name="animate" keyPath="self" id="ENB-El-2RY">
                                         <dictionary key="options">
                                             <string key="NSValueTransformerName">NSIsNotNil</string>
                                         </dictionary>
                                     </binding>
-                                    <binding destination="3AT-TD-MnR" name="animate" keyPath="self" id="ENB-El-2RY">
+                                    <binding destination="3AT-TD-MnR" name="hidden" keyPath="self.error" id="ES6-cY-kxW">
                                         <dictionary key="options">
                                             <string key="NSValueTransformerName">NSIsNotNil</string>
                                         </dictionary>
@@ -408,7 +406,7 @@ Gw
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" title="URL" placeholderString="URL" drawsBackground="YES" usesSingleLineMode="YES" id="0Tb-AO-3tN">
                                     <font key="font" metaFont="system"/>
-                                    <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                                 <connections>
@@ -537,13 +535,13 @@ Gw
                                 </textFieldCell>
                             </textField>
                             <scrollView wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="0.0" horizontalPageScroll="0.0" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" horizontalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="iP4-b5-Jft">
-                                <rect key="frame" x="20" y="82" width="476" height="355"/>
+                                <rect key="frame" x="20" y="81" width="476" height="356"/>
                                 <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="eE8-1Y-Rx0">
-                                    <rect key="frame" x="0.0" y="0.0" width="476" height="355"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="476" height="356"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <collectionView selectable="YES" allowsEmptySelection="NO" allowsMultipleSelection="YES" id="Vj6-Iw-9Oi">
-                                            <rect key="frame" x="0.0" y="0.0" width="476" height="355"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="476" height="356"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                             <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="2" minimumLineSpacing="5" id="8Op-Cg-Dkn">
                                                 <size key="itemSize" width="150" height="120"/>
@@ -556,17 +554,17 @@ Gw
                                         </collectionView>
                                     </subviews>
                                 </clipView>
-                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="edU-Ez-asE">
+                                <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="edU-Ez-asE">
                                     <rect key="frame" x="-100" y="-100" width="0.0" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
-                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="KNm-V6-lxI">
+                                <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="KNm-V6-lxI">
                                     <rect key="frame" x="-100" y="-100" width="16" height="250"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
                             <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="29m-d0-SEk" userLabel="Image Selection">
-                                <rect key="frame" x="68" y="50" width="345" height="26"/>
+                                <rect key="frame" x="68" y="50" width="345" height="24"/>
                                 <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="rNf-pG-EuU" id="cmD-IR-Pgp">
                                     <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="menu"/>
@@ -634,7 +632,7 @@ Gw
                                 </connections>
                             </button>
                             <button toolTip="Download to Cache..." translatesAutoresizingMaskIntoConstraints="NO" id="5wt-9z-9Uf">
-                                <rect key="frame" x="422" y="52" width="24" height="24"/>
+                                <rect key="frame" x="422" y="51" width="24" height="24"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="24" id="3hM-iL-E90"/>
                                     <constraint firstAttribute="width" constant="24" id="JQq-lO-A8N"/>
@@ -653,7 +651,7 @@ Gw
                                 </connections>
                             </button>
                             <button toolTip="Cached" translatesAutoresizingMaskIntoConstraints="NO" id="Rb6-rz-Usf">
-                                <rect key="frame" x="422" y="52" width="24" height="24"/>
+                                <rect key="frame" x="422" y="51" width="24" height="24"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="24" id="4Fa-Go-5kd"/>
                                     <constraint firstAttribute="width" constant="24" id="ufA-dO-Fy4"/>
@@ -671,6 +669,20 @@ Gw
                                     </binding>
                                 </connections>
                             </button>
+                            <imageView toolTip="This image runs a post script." horizontalHuggingPriority="251" verticalHuggingPriority="251" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Gch-7D-oAq">
+                                <rect key="frame" x="454" y="53" width="20" height="20"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="20" id="gMz-4y-ZXR"/>
+                                </constraints>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" toolTip="This image runs a post script." imageScaling="proportionallyDown" image="Script" id="PPb-NF-z2L"/>
+                                <connections>
+                                    <binding destination="2DG-up-bcd" name="hidden" keyPath="self.selectedImage.postScript" id="WWc-Pg-el0">
+                                        <dictionary key="options">
+                                            <string key="NSValueTransformerName">NSIsNil</string>
+                                        </dictionary>
+                                    </binding>
+                                </connections>
+                            </imageView>
                         </subviews>
                         <constraints>
                             <constraint firstItem="5wt-9z-9Uf" firstAttribute="trailing" secondItem="Vj6-Iw-9Oi" secondAttribute="trailing" constant="-50" id="4Oa-6v-HuB"/>
@@ -682,11 +694,15 @@ Gw
                             <constraint firstItem="HpM-eK-Ynl" firstAttribute="top" secondItem="r9B-K2-SWU" secondAttribute="top" constant="1" id="LJl-sn-icc"/>
                             <constraint firstItem="NcE-Lu-cAn" firstAttribute="top" secondItem="29m-d0-SEk" secondAttribute="bottom" constant="12" id="Nth-1c-jnl"/>
                             <constraint firstItem="NcE-Lu-cAn" firstAttribute="centerX" secondItem="29m-d0-SEk" secondAttribute="centerX" id="OIE-1R-kWP"/>
+                            <constraint firstItem="Gch-7D-oAq" firstAttribute="bottom" secondItem="29m-d0-SEk" secondAttribute="bottom" id="PXy-6A-Uyq"/>
                             <constraint firstAttribute="bottom" secondItem="YUi-F3-k0J" secondAttribute="bottom" constant="20" id="QpF-ce-M4c"/>
+                            <constraint firstItem="Gch-7D-oAq" firstAttribute="leading" secondItem="Rb6-rz-Usf" secondAttribute="trailing" constant="8" symbolic="YES" id="RkO-mZ-M9U"/>
+                            <constraint firstAttribute="trailing" secondItem="Gch-7D-oAq" secondAttribute="trailing" constant="42" id="SO9-dX-yWE"/>
                             <constraint firstItem="29m-d0-SEk" firstAttribute="leading" secondItem="Vj6-Iw-9Oi" secondAttribute="leading" constant="50" id="WDk-DF-ToQ"/>
                             <constraint firstItem="29m-d0-SEk" firstAttribute="top" secondItem="iP4-b5-Jft" secondAttribute="bottom" constant="8" id="YQ2-V8-PPb"/>
                             <constraint firstItem="YUi-F3-k0J" firstAttribute="leading" secondItem="29m-d0-SEk" secondAttribute="leading" id="ZMA-vP-NcL"/>
                             <constraint firstItem="iP4-b5-Jft" firstAttribute="leading" secondItem="r9B-K2-SWU" secondAttribute="leading" constant="20" id="af4-Pg-7Z0"/>
+                            <constraint firstItem="Gch-7D-oAq" firstAttribute="top" secondItem="29m-d0-SEk" secondAttribute="top" id="e4Y-az-WUs"/>
                             <constraint firstItem="Rb6-rz-Usf" firstAttribute="centerX" secondItem="5wt-9z-9Uf" secondAttribute="centerX" id="fyI-xt-dhS"/>
                             <constraint firstItem="20D-SY-zYU" firstAttribute="top" secondItem="29m-d0-SEk" secondAttribute="bottom" constant="12" id="gil-s5-CoF"/>
                             <constraint firstItem="20D-SY-zYU" firstAttribute="trailing" secondItem="29m-d0-SEk" secondAttribute="trailing" id="gn8-j3-BQS"/>
@@ -723,5 +739,6 @@ Gw
         <image name="Download" width="24" height="24"/>
         <image name="DownloadPushed" width="18" height="18"/>
         <image name="NSCaution" width="32" height="32"/>
+        <image name="Script" width="512" height="512"/>
     </resources>
 </document>
