@@ -148,22 +148,22 @@ pre-compiled version of Restor.
 #### Requirements
 
 * Xcode 9+ installed
-* [cocoapods](https://cocoapods.org) installed
+* [bazel](https://bazel.build) installed
 * A valid "Mac Developer" Signing Certificate from Apple
-* Xcode command line tools installed
+* Xcode 9+ command line tools installed
 
 #### Build steps
 
 1. `git clone https://github.com/google/restor.git`
 1. `cd restor`
-1. `pod install`
-1. Find your Team Identifer. Manually selecting the correct Team Identifier might be required if you have multiple developer certificates.
+1. Find your certificate's common name (CN).
     ```bash
-    security find-certificate -p -c "Mac Developer" | openssl x509 -inform pem -subject | perl -ne '/OU=(\w+)\// && print $1'
+    security find-certificate -p -c "Mac Developer" | openssl x509 -inform pem -subject | perl -ne '/CN=([\w :\(\)]+)\// && print $1'
     ```
+1. Edit the `.bazelrc` file, filling in your CN.
 1. Build with the following command, making sure to insert a valid Team Identifier from the previous step.
     ```bash
-    make release TEAM_ID=EQHXZ8M8AV
+    bazel build //Restor
     ```
 
 If the build was successful the last line will contain the path to your
