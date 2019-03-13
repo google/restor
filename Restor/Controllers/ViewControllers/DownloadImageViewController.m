@@ -161,11 +161,15 @@
   va_end(args);
   // Log the error message.
   NSLog(@"Error: %@", msg);
-  // Then display an alert.
-  NSAlert *alert = [[NSAlert alloc] init];
-  alert.alertStyle = NSAlertStyleCritical;
-  alert.messageText = msg;
+
+  WEAKIFY(msg);
   dispatch_async(dispatch_get_main_queue(), ^{
+    STRONGIFY(msg);
+
+    // Then display an alert.
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.alertStyle = NSAlertStyleCritical;
+    alert.messageText = msg;
     [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse rc) {
       [self cancel:self];
     }];
