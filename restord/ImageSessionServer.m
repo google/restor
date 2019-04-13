@@ -346,6 +346,10 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 
 #pragma mark Disk Mounting / Unmounting
 
+//
+// Mount and unmounts may take up to 5 minutes.
+//
+
 // Used by both mountDisk and unmountDisk to wait for mount/unmount to complete before returning.
 void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *context) {
   dispatch_semaphore_t sema = (__bridge dispatch_semaphore_t)context;
@@ -353,7 +357,6 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
 }
 
 // Mount the given disk at a temporary location, returning the mount location.
-// May take up to 60 seconds.
 - (NSURL *)mountDisk:(DADiskRef)disk {
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);
   NSString *uuid = [[NSProcessInfo processInfo] globallyUniqueString];
@@ -365,7 +368,7 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
                                                  error:NULL];
   DADiskMount(disk, (__bridge CFURLRef)directoryURL, 0,
               &MountUnmountCallback, (__bridge void *)sema);
-  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 60 * NSEC_PER_SEC))) {
+  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * 60 * NSEC_PER_SEC))) {
     NSLog(@"%@ Timed out while mounting disk", self);
     return nil;
   }
@@ -374,11 +377,11 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
   return desc[(__bridge NSString *)kDADiskDescriptionVolumePathKey];
 }
 
-// Unmount a given disk forcibly. May take up to 5 seconds.
+// Unmount a given disk.
 - (void)unmountDisk:(DADiskRef)disk {
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-  DADiskUnmount(disk, kDADiskUnmountOptionForce, &MountUnmountCallback, (__bridge void *)sema);
-  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * NSEC_PER_SEC))) {
+  DADiskUnmount(disk, kDADiskUnmountOptionDefault, &MountUnmountCallback, (__bridge void *)sema);
+  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * 60 * NSEC_PER_SEC))) {
     NSLog(@"%@ Timed out while unmounting disk", self);
   }
 }
