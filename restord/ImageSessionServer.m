@@ -12,7 +12,7 @@
 ///    See the License for the specific language governing permissions and
 ///    limitations under the License.
 
-#import "third_party/objective_c/restor/restord/ImageSessionServer.h"
+#import "restord/ImageSessionServer.h"
 
 #import <unistd.h>
 
@@ -20,9 +20,9 @@
 
 #import <MOLXPCConnection/MOLXPCConnection.h>
 
-#import "third_party/objective_c/restor/Common/Disk.h"
-#import "third_party/objective_c/restor/Common/Image.h"
-#import "third_party/objective_c/restor/Common/RestorProtocol.h"
+#import "Common/Disk.h"
+#import "Common/Image.h"
+#import "Common/RestorProtocol.h"
 
 NSString * const kImageInfo = @"/Library/Preferences/com.google.corp.imageinfo.plist";
 
