@@ -162,13 +162,9 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 
   // Finish up.
   [self blessMountURL:mountURL];
-  if (disk) {
-    [self unmountDisk:disk withOptions:kDADiskUnmountOptionDefault];
-    CFRelease(disk);
-  }
-  [self unmountDisk:self.diskRef withOptions:kDADiskUnmountOptionWhole];
+  [self unmountDisk:disk ?: self.diskRef withOptions:kDADiskUnmountOptionWhole];
+  if (disk) CFRelease(disk);
   [self ejectDisk:self.diskRef];
-
   [[self.client remoteObjectProxy] imageAppliedSuccess:YES error:nil];
 }
 
@@ -358,7 +354,7 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 // Used by various disk operations to wait for completion before returning.
 void MountUnmountEjectCallback(DADiskRef disk, DADissenterRef dissenter, void *context) {
   if (dissenter) {
-    NSLog(@"UnmountCallback: Error from Unmount %s: status=%X, string=%@", DADiskGetBSDName(disk),
+    NSLog(@"MountUnmountEjectCallback: Error from Unmount %s: status=%X, string=%@", DADiskGetBSDName(disk),
           DADissenterGetStatus(dissenter), DADissenterGetStatusString(dissenter));
     LogDiskAndDissenter(disk, dissenter);
   }
