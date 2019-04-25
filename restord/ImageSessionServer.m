@@ -354,8 +354,9 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 // Used by various disk operations to wait for completion before returning.
 void MountUnmountEjectCallback(DADiskRef disk, DADissenterRef dissenter, void *context) {
   if (dissenter) {
-    NSLog(@"MountUnmountEjectCallback: Error from Unmount %s: status=%X, string=%@", DADiskGetBSDName(disk),
-          DADissenterGetStatus(dissenter), DADissenterGetStatusString(dissenter));
+    NSLog(@"MountUnmountEjectCallback: Error from Unmount %s: status=%X, string=%@",
+          DADiskGetBSDName(disk), DADissenterGetStatus(dissenter),
+          DADissenterGetStatusString(dissenter));
     LogDiskAndDissenter(disk, dissenter);
   }
   dispatch_semaphore_t sema = (__bridge dispatch_semaphore_t)context;
@@ -386,16 +387,12 @@ void MountUnmountEjectCallback(DADiskRef disk, DADissenterRef dissenter, void *c
 // Unmount a given disk/whole disk.
 - (void)unmountDisk:(DADiskRef)disk withOptions:(DADiskUnmountOptions)options {
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-  if (options & kDADiskUnmountOptionWhole) {
-    disk = DADiskCopyWholeDisk(disk);
-  }
+  if (options & kDADiskUnmountOptionWhole) disk = DADiskCopyWholeDisk(disk);
   DADiskUnmount(disk, options, &MountUnmountEjectCallback, (__bridge void *)sema);
   if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * 60 * NSEC_PER_SEC))) {
     NSLog(@"%@ Timed out while unmounting disk: %@", self, disk);
   }
-  if (options & kDADiskUnmountOptionWhole) {
-    CFRelease(disk);
-  }
+  if (options & kDADiskUnmountOptionWhole) CFRelease(disk);
 }
 
 // Eject the whole disk for a given diskref.
@@ -429,12 +426,8 @@ void MountUnmountEjectCallback(DADiskRef disk, DADissenterRef dissenter, void *c
 
 // log info on dissents from various callback routines.
 void LogDiskAndDissenter(DADiskRef disk, DADissenterRef dissenter) {
-  if (dissenter) {
-    NSLog(@"Dissenter: %@", CFBridgingRelease(CFCopyDescription(dissenter)));
-  }
-  if (disk) {
-    NSLog(@"Disk: %@", CFBridgingRelease(CFCopyDescription(disk)));
-  }
+  if (dissenter) NSLog(@"Dissenter: %@", CFBridgingRelease(CFCopyDescription(dissenter)));
+  if (disk) NSLog(@"Disk: %@", CFBridgingRelease(CFCopyDescription(disk)));
 }
 
 // Save image and imaging session information to the target mount, in the imageinfo.plist file.
