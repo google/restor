@@ -102,7 +102,7 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 }
 
 - (void)beginImaging {
-  [self unmountDisk:self.diskRef];
+  [self unmountDisk:self.diskRef withOptions:kDADiskUnmountOptionWhole];
 
   // Remove any top level recovery partitions.
   [self removeRecovery];
@@ -162,8 +162,9 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 
   // Finish up.
   [self blessMountURL:mountURL];
-  [self unmountDisk:disk ?: self.diskRef];
+  [self unmountDisk:disk ?: self.diskRef withOptions:kDADiskUnmountOptionWhole];
   if (disk) CFRelease(disk);
+  [self ejectDisk:self.diskRef];
   [[self.client remoteObjectProxy] imageAppliedSuccess:YES error:nil];
 }
 
@@ -350,8 +351,14 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 // Mount and unmounts may take up to 5 minutes.
 //
 
-// Used by both mountDisk and unmountDisk to wait for mount/unmount to complete before returning.
-void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *context) {
+// Used by various disk operations to wait for completion before returning.
+void MountUnmountEjectCallback(DADiskRef disk, DADissenterRef dissenter, void *context) {
+  if (dissenter) {
+    NSLog(@"MountUnmountEjectCallback: Error from Unmount %s: status=%X, string=%@",
+          DADiskGetBSDName(disk), DADissenterGetStatus(dissenter),
+          DADissenterGetStatusString(dissenter));
+    LogDiskAndDissenter(disk, dissenter);
+  }
   dispatch_semaphore_t sema = (__bridge dispatch_semaphore_t)context;
   dispatch_semaphore_signal(sema);
 }
@@ -366,24 +373,61 @@ void MountUnmountCallback(DADiskRef disk, DADissenterRef dissenter, void *contex
                            withIntermediateDirectories:YES
                                             attributes:nil
                                                  error:NULL];
-  DADiskMount(disk, (__bridge CFURLRef)directoryURL, 0,
-              &MountUnmountCallback, (__bridge void *)sema);
+  DADiskMount(disk, (__bridge CFURLRef)directoryURL, 0, &MountUnmountEjectCallback,
+              (__bridge void *)sema);
   if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * 60 * NSEC_PER_SEC))) {
     NSLog(@"%@ Timed out while mounting disk", self);
     return nil;
   }
-
+  [self disableSpotlight:directoryURL];
   NSDictionary *desc = CFBridgingRelease(DADiskCopyDescription(disk));
   return desc[(__bridge NSString *)kDADiskDescriptionVolumePathKey];
 }
 
-// Unmount a given disk.
-- (void)unmountDisk:(DADiskRef)disk {
+// Unmount a given disk/whole disk.
+- (void)unmountDisk:(DADiskRef)disk withOptions:(DADiskUnmountOptions)options {
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-  DADiskUnmount(disk, kDADiskUnmountOptionDefault, &MountUnmountCallback, (__bridge void *)sema);
+  if (options & kDADiskUnmountOptionWhole) disk = DADiskCopyWholeDisk(disk);
+  DADiskUnmount(disk, options, &MountUnmountEjectCallback, (__bridge void *)sema);
+  if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * 60 * NSEC_PER_SEC))) {
+    NSLog(@"%@ Timed out while unmounting disk: %@", self, disk);
+  }
+  if (options & kDADiskUnmountOptionWhole) CFRelease(disk);
+}
+
+// Eject the whole disk for a given diskref.
+- (void)ejectDisk:(DADiskRef)disk {
+  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+  DADiskRef wholeDisk = DADiskCopyWholeDisk(disk);
+  DADiskEject(wholeDisk, kDADiskEjectOptionDefault, &MountUnmountEjectCallback,
+              (__bridge void *)sema);
   if (dispatch_semaphore_wait(sema, dispatch_time(DISPATCH_TIME_NOW, 5 * 60 * NSEC_PER_SEC))) {
     NSLog(@"%@ Timed out while unmounting disk", self);
   }
+  CFRelease(wholeDisk);
+}
+
+// spotlight seems to start up very quickly once the disk is mounted.  Tell it to stop.
+- (int)disableSpotlight:(NSURL *)mountPoint {
+  NSLog(@"Running /usr/bin/mdutil -i off %@", mountPoint.path);
+  NSTask *mdUtil = [[NSTask alloc] init];
+  mdUtil.standardOutput = [NSPipe pipe];
+  mdUtil.launchPath = @"/usr/bin/mdutil";
+  mdUtil.arguments = @[ @"-i", @"off", @"-d", mountPoint.path ];
+  [mdUtil launch];
+  [mdUtil waitUntilExit];
+  NSData *sout = [[mdUtil.standardOutput fileHandleForReading] readDataToEndOfFile];
+  if (mdUtil.terminationStatus != 0) {
+    NSLog(@"Error from mdUtil(%d): %@", mdUtil.terminationStatus,
+          [[NSString alloc] initWithData:sout encoding:NSUTF8StringEncoding]);
+  }
+  return mdUtil.terminationStatus;
+}
+
+// log info on dissents from various callback routines.
+void LogDiskAndDissenter(DADiskRef disk, DADissenterRef dissenter) {
+  if (dissenter) NSLog(@"Dissenter: %@", CFBridgingRelease(CFCopyDescription(dissenter)));
+  if (disk) NSLog(@"Disk: %@", CFBridgingRelease(CFCopyDescription(disk)));
 }
 
 // Save image and imaging session information to the target mount, in the imageinfo.plist file.
