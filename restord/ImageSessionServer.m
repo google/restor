@@ -378,6 +378,7 @@ void MountUnmountEjectCallback(DADiskRef disk, DADissenterRef dissenter, void *c
     NSLog(@"%@ Timed out while mounting disk", self);
     return nil;
   }
+  [self disableSpotlight:directoryURL];
   NSDictionary *desc = CFBridgingRelease(DADiskCopyDescription(disk));
   return desc[(__bridge NSString *)kDADiskDescriptionVolumePathKey];
 }
@@ -407,6 +408,23 @@ void MountUnmountEjectCallback(DADiskRef disk, DADissenterRef dissenter, void *c
     NSLog(@"%@ Timed out while unmounting disk", self);
   }
   CFRelease(wholeDisk);
+}
+
+// spotlight seems to start up very quickly once the disk is mounted.  Tell it to stop.
+- (int)disableSpotlight:(NSURL *)mountPoint {
+  NSLog(@"Running /usr/bin/mdutil -i off %@", mountPoint.path);
+  NSTask *mdUtil = [[NSTask alloc] init];
+  mdUtil.standardOutput = [NSPipe pipe];
+  mdUtil.launchPath = @"/usr/bin/mdutil";
+  mdUtil.arguments = @[ @"-i", @"off", @"-d", mountPoint.path ];
+  [mdUtil launch];
+  [mdUtil waitUntilExit];
+  NSData *sout = [[mdUtil.standardOutput fileHandleForReading] readDataToEndOfFile];
+  if (mdUtil.terminationStatus != 0) {
+    NSLog(@"Error from mdUtil(%d): %@", mdUtil.terminationStatus,
+          [[NSString alloc] initWithData:sout encoding:NSUTF8StringEncoding]);
+  }
+  return mdUtil.terminationStatus;
 }
 
 // log info on dissents from various callback routines.
