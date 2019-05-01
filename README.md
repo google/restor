@@ -127,6 +127,16 @@ sudo defaults write /Library/Preferences/com.google.corp.restor.plist DiskFilter
     "(bsdName != 'disk3s2')"
 ```
 
+### ASRAttempts
+
+__Optional__
+
+Set how many times Restor should attempt to run ASR until it runs successfully.
+This may help with issues where the Volume is not unmountable by ASR due to some
+external process (ie spotlight) holding onto it.  Defaults to 1.
+
+`sudo defaults write /Library/Preferences/com.google.corp.restor.plist ASRAttempts -int 5`
+
 ## 10.13 and APFS Note
 
 In order to restore an APFS 10.13 DMG to a machine, the host machine running
