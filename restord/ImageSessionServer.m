@@ -27,6 +27,8 @@ NSString * const kImageInfo = @"/Library/Preferences/com.google.corp.imageinfo.p
 // GUID Partition Table UUID Constants
 NSString * const kGPTAPFSUUID = @"7C3457EF-0000-11AA-AA11-00306543ECAC";
 NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
+static NSString * const kPreferenceDomain = @"com.google.corp.restor";
+static NSString * const kASRAttempts = @"ASRAttempts";
 
 @interface ImageSessionServer ()
 
@@ -102,8 +104,6 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 }
 
 - (void)beginImaging {
-  [self unmountDisk:self.diskRef withOptions:kDADiskUnmountOptionWhole];
-
   // Remove any top level recovery partitions.
   [self removeRecovery];
 
@@ -260,39 +260,50 @@ NSString * const kGPTCoreStorageUUID = @"53746F72-6167-11AA-AA11-00306543ECAC";
 - (int)applyImage {
   NSString *path = self.image.localURL.path;
 
-  self.asr = [[NSTask alloc] init];
-  self.asr.launchPath = @"/usr/sbin/asr";
-  self.asr.arguments = @[ @"restore",
-                          @"--buffersize",
-                          @"16m",
-                          @"--source",
-                          path,
-                          @"--target",
-                          self.destination.path,
-                          @"--erase",
-                          @"--noprompt",
-                          @"--noverify",
-                          @"--puppetstrings" ];
+  int retries = (int)[[[NSUserDefaults alloc] initWithSuiteName:kPreferenceDomain] integerForKey:kASRAttempts];
+  if (retries <= 0) retries = 1;
+  NSLog(@"Will attempt ASR up to %d times.", retries);
+  for(int i = 0; i < retries; i++) {
+    [self unmountDisk:self.diskRef withOptions:kDADiskUnmountOptionWhole];
 
-  // Set task environment.
-  NSMutableDictionary *environment = [[[NSProcessInfo processInfo] environment] mutableCopy];
-  environment[@"NSUnbufferedIO"] = @"YES";
-  self.asr.environment = environment;
+    self.asr = [[NSTask alloc] init];
+    self.asr.launchPath = @"/usr/sbin/asr";
+    self.asr.arguments = @[ @"restore",
+                            @"--buffersize",
+                            @"16m",
+                            @"--source",
+                            path,
+                            @"--target",
+                            self.destination.path,
+                            @"--erase",
+                            @"--noprompt",
+                            @"--noverify",
+                            @"--puppetstrings" ];
 
-  // Create output pipe & file handle.
-  self.asr.standardError = self.asr.standardOutput = [[NSPipe alloc] init];
-  NSFileHandle *outputFh = [self.asr.standardOutput fileHandleForReading];
-  outputFh.readabilityHandler = ^(NSFileHandle *h) {
-    NSData *availableData = [h availableData];
-    [self processOutput:(NSData *)availableData];
-  };
+    // Set task environment.
+    NSMutableDictionary *environment = [[[NSProcessInfo processInfo] environment] mutableCopy];
+    environment[@"NSUnbufferedIO"] = @"YES";
+    self.asr.environment = environment;
 
-  // Launch and wait for exit.
-  [self.asr launch];
-  [self.asr waitUntilExit];
+    // Create output pipe & file handle.
+    self.asr.standardError = self.asr.standardOutput = [[NSPipe alloc] init];
+    NSFileHandle *outputFh = [self.asr.standardOutput fileHandleForReading];
+    outputFh.readabilityHandler = ^(NSFileHandle *h) {
+      NSData *availableData = [h availableData];
+      [self processOutput:(NSData *)availableData];
+    };
 
-  // Clear readability handler or the file handle is never released.
-  outputFh.readabilityHandler = nil;
+    // Launch and wait for exit.
+    [self.asr launch];
+    [self.asr waitUntilExit];
+
+    // Clear readability handler or the file handle is never released.
+    outputFh.readabilityHandler = nil;
+    if (self.asr && self.asr.terminationStatus == 0) {
+      break;
+    }
+    NSLog(@"%@ ASR attempt %d exit code: %d", self, i + 1, self.asr.terminationStatus);
+  }
   return self.asr ? self.asr.terminationStatus : -1;
 }
 
