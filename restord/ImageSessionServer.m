@@ -263,7 +263,7 @@ static NSString * const kASRAttempts = @"ASRAttempts";
   int retries = (int)[[[NSUserDefaults alloc] initWithSuiteName:kPreferenceDomain] integerForKey:kASRAttempts];
   if (retries <= 0) retries = 1;
   NSLog(@"Will attempt ASR up to %d times.", retries);
-  for(int i = 0; i < retries; i++) {
+  for (int i = 0; i < retries; ++i) {
     [self unmountDisk:self.diskRef withOptions:kDADiskUnmountOptionWhole];
 
     self.asr = [[NSTask alloc] init];
@@ -299,9 +299,7 @@ static NSString * const kASRAttempts = @"ASRAttempts";
 
     // Clear readability handler or the file handle is never released.
     outputFh.readabilityHandler = nil;
-    if (self.asr && self.asr.terminationStatus == 0) {
-      break;
-    }
+    if (self.asr && self.asr.terminationStatus == 0) break;
     NSLog(@"%@ ASR attempt %d exit code: %d", self, i + 1, self.asr.terminationStatus);
   }
   return self.asr ? self.asr.terminationStatus : -1;
