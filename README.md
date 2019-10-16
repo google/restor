@@ -1,4 +1,5 @@
 # Restor
+**Note**: Restor is deprecated, there is no intention to add macOS 10.15 support, or update the project going forward. 
 
 Restor is a user-friendly application to (mass) image macOS computers from a
 single source. It is an application intended to be run interactively on a
